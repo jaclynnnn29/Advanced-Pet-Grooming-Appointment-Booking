@@ -129,6 +129,12 @@ namespace Advanced_Pet_Grooming.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("failed_login_attempts")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("locked_until")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -143,6 +149,13 @@ namespace Advanced_Pet_Grooming.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("reset_token")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("reset_token_expiry")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("customer_id");
 
@@ -294,7 +307,7 @@ namespace Advanced_Pet_Grooming.Migrations
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Appointment", b =>
                 {
                     b.HasOne("Advanced_Pet_Grooming.Models.Customer", "Customer")
-                        .WithMany("Appointments")
+                        .WithMany()
                         .HasForeignKey("customer_id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -340,7 +353,7 @@ namespace Advanced_Pet_Grooming.Migrations
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Pet", b =>
                 {
                     b.HasOne("Advanced_Pet_Grooming.Models.Customer", "Customer")
-                        .WithMany("Pets")
+                        .WithMany()
                         .HasForeignKey("customer_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -351,13 +364,6 @@ namespace Advanced_Pet_Grooming.Migrations
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Appointment", b =>
                 {
                     b.Navigation("Payments");
-                });
-
-            modelBuilder.Entity("Advanced_Pet_Grooming.Models.Customer", b =>
-                {
-                    b.Navigation("Appointments");
-
-                    b.Navigation("Pets");
                 });
 
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Pet", b =>
