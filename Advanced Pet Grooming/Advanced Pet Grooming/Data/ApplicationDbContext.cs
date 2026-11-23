@@ -23,7 +23,7 @@ namespace Advanced_Pet_Grooming.Data
             // Prevent multiple cascade delete path conflicts in SQL Server
             modelBuilder.Entity<Appointment>()
                 .HasOne(a => a.Customer)
-                .WithMany(c => c.Appointments)
+                .WithMany() //c => c.Appointments
                 .HasForeignKey(a => a.customer_id)
                 .OnDelete(DeleteBehavior.Restrict);
 

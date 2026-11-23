@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Advanced_Pet_Grooming.Data;
 using Advanced_Pet_Grooming.Models;
 
@@ -13,67 +15,227 @@ namespace Advanced_Pet_Grooming.Controllers
             _context = context;
         }
 
-        // GET: /Account/Register
-        public IActionResult Register() => View();
+        // =========================
+        // CUSTOMER REGISTRATION
+        // =========================
 
-        // POST: /Account/Register
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Register(Customer model, string password)
         {
-            if (_context.Customers.Any(c => c.email == model.email))
+            if (string.IsNullOrWhiteSpace(model.name) ||
+                string.IsNullOrWhiteSpace(model.email) ||
+                string.IsNullOrWhiteSpace(model.phone_no) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = "Please fill in all required fields.";
+                return View(model);
+            }
+
+            // Check duplicate email
+            string email = model.email.Trim();
+
+            bool emailExists =
+                _context.Customers.Any(c => c.email == email) ||
+                _context.Staffs.Any(s => s.email == email);
+
+            if (emailExists)
             {
                 ViewBag.Error = "Email is already registered.";
                 return View(model);
             }
 
-            model.password_hash = BCrypt.Net.BCrypt.HashPassword(password);
-            model.account_status = "Active";
-            model.created_at = DateTime.Now;
+            // Create Customer
+            var customer = new Customer
+            {
+                name = model.name.Trim(),
+                email = email,
+                phone_no = model.phone_no.Trim(),
+                password_hash = BCrypt.Net.BCrypt.HashPassword(password),
+                account_status = "Active",
+                created_at = DateTime.Now,
+                failed_login_attempts = 0,
+                locked_until = null
+            };
 
-            _context.Customers.Add(model);
+            _context.Customers.Add(customer);
             _context.SaveChanges();
 
-            TempData["Success"] = "Registration successful! Please log in.";
+            TempData["Success"] =
+                "Registration successful! Please log in.";
+
             return RedirectToAction("Login");
         }
 
-        // GET: /Account/Login
-        public IActionResult Login() => View();
+        // =========================
+        // LOGIN PAGE
+        // =========================
 
-        // POST: /Account/Login
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        // =========================
+        // CUSTOMER / STAFF LOGIN
+        // =========================
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Login(string email, string password)
         {
-            // 1. Check Staff / Admin / Groomer table first
-            var staff = _context.Staffs.FirstOrDefault(s => s.email == email && s.account_status == "Active");
-            if (staff != null && BCrypt.Net.BCrypt.Verify(password, staff.password_hash))
+            if (string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(password))
             {
-                HttpContext.Session.SetInt32("UserId", staff.staff_id);
-                HttpContext.Session.SetString("UserName", staff.staff_name);
-                HttpContext.Session.SetString("UserRole", staff.role); // Admin, Groomer, Staff
-                return RedirectToAction("Index", "Home");
+                ViewBag.Error = "Please enter email and password.";
+                return View();
             }
 
-            // 2. Check Customer table
-            var customer = _context.Customers.FirstOrDefault(c => c.email == email && c.account_status == "Active");
-            if (customer != null && BCrypt.Net.BCrypt.Verify(password, customer.password_hash))
+            email = email.Trim();
+
+            // =========================
+            // 1. CHECK STAFF / ADMIN
+            // =========================
+
+            var staff = _context.Staffs
+                .FirstOrDefault(s => s.email == email);
+
+            if (staff != null)
             {
-                HttpContext.Session.SetInt32("UserId", customer.customer_id);
-                HttpContext.Session.SetString("UserName", customer.name);
-                HttpContext.Session.SetString("UserRole", "Customer");
-                return RedirectToAction("Index", "Home");
+                if (staff.account_status != "Active")
+                {
+                    ViewBag.Error = "Your account is inactive.";
+                    return View();
+                }
+
+                if (BCrypt.Net.BCrypt.Verify(
+                    password, staff.password_hash))
+                {
+                    HttpContext.Session.Clear();
+
+                    HttpContext.Session.SetInt32(
+                        "UserId", staff.staff_id);
+
+                    HttpContext.Session.SetString(
+                        "UserName", staff.staff_name);
+
+                    HttpContext.Session.SetString(
+                        "UserRole", staff.role);
+
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ViewBag.Error = "Invalid email or password.";
+                return View();
             }
 
-            ViewBag.Error = "Invalid email or password.";
-            return View();
+            // =========================
+            // 2. CHECK CUSTOMER
+            // =========================
+
+            var customer = _context.Customers
+                .FirstOrDefault(c => c.email == email);
+
+            if (customer == null)
+            {
+                ViewBag.Error = "Invalid email or password.";
+                return View();
+            }
+
+            // Check account status
+            if (customer.account_status != "Active")
+            {
+                ViewBag.Error = "Your account is inactive.";
+                return View();
+            }
+
+            // Check temporary account lock
+            if (customer.locked_until.HasValue &&
+                customer.locked_until.Value > DateTime.Now)
+            {
+                ViewBag.Error =
+                    "Your account is temporarily locked. Please try again later.";
+
+                return View();
+            }
+
+            // Reset expired lock
+            if (customer.locked_until.HasValue &&
+                customer.locked_until.Value <= DateTime.Now)
+            {
+                customer.locked_until = null;
+                customer.failed_login_attempts = 0;
+            }
+
+            // Verify password
+            if (!BCrypt.Net.BCrypt.Verify(
+                password, customer.password_hash))
+            {
+                customer.failed_login_attempts++;
+
+                // Lock account after 3 failed attempts
+                if (customer.failed_login_attempts >= 3)
+                {
+                    customer.locked_until =
+                        DateTime.Now.AddMinutes(1);
+
+                    customer.failed_login_attempts = 0;
+
+                    _context.SaveChanges();
+
+                    ViewBag.Error =
+                        "Too many failed attempts. Your account is locked for 1 minute.";
+
+                    return View();
+                }
+
+                _context.SaveChanges();
+
+                ViewBag.Error =
+                    $"Invalid email or password. Failed attempts: {customer.failed_login_attempts}/3";
+
+                return View();
+            }
+
+            // =========================
+            // SUCCESSFUL CUSTOMER LOGIN
+            // =========================
+
+            customer.failed_login_attempts = 0;
+            customer.locked_until = null;
+
+            _context.SaveChanges();
+
+            HttpContext.Session.Clear();
+
+            HttpContext.Session.SetInt32(
+                "UserId", customer.customer_id);
+
+            HttpContext.Session.SetString(
+                "UserName", customer.name);
+
+            HttpContext.Session.SetString(
+                "UserRole", "Customer");
+
+            return RedirectToAction("Index", "Home");
         }
 
-        // GET: /Account/Logout
+        // =========================
+        // LOGOUT
+        // =========================
+
+        [HttpGet]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
+
             return RedirectToAction("Login");
         }
     }
