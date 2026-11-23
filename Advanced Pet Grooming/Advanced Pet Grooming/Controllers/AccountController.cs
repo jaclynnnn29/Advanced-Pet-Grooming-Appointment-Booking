@@ -3,12 +3,32 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Advanced_Pet_Grooming.Data;
 using Advanced_Pet_Grooming.Models;
+using System.Security.Cryptography;
 
 namespace Advanced_Pet_Grooming.Controllers
 {
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
+
+        private string GenerateCaptchaCode()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+            return new string(
+                Enumerable.Range(0, 6)
+                .Select(_ => chars[RandomNumberGenerator.GetInt32(chars.Length)])
+                .ToArray()
+            );
+        }
+
+        private void SetCaptcha()
+        {
+            string captcha = GenerateCaptchaCode();
+
+            HttpContext.Session.SetString("CaptchaCode", captcha);
+            ViewBag.CaptchaCode = captcha;
+        }
 
         public AccountController(ApplicationDbContext context)
         {
@@ -80,6 +100,7 @@ namespace Advanced_Pet_Grooming.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            SetCaptcha();
             return View();
         }
 
