@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Advanced_Pet_Grooming.Models
 {
@@ -24,8 +26,15 @@ namespace Advanced_Pet_Grooming.Models
 
         public DateTime created_at { get; set; } = DateTime.Now;
 
-        // Navigation properties
-        public ICollection<Pet>? Pets { get; set; }
-        public ICollection<Appointment>? Appointments { get; set; }
+        // Login Security
+        public int failed_login_attempts { get; set; } = 0;
+
+        public DateTime? locked_until { get; set; }
+
+        // Forgot Password
+        [StringLength(255)]
+        public string? reset_token { get; set; }
+
+        public DateTime? reset_token_expiry { get; set; }
     }
 }
