@@ -1,7 +1,8 @@
 ﻿
-using Microsoft.AspNetCore.Mvc;
 using Advanced_Pet_Grooming.Data;
 using Advanced_Pet_Grooming.Models;
+using Advanced_Pet_Grooming.Services;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 
 namespace Advanced_Pet_Grooming.Controllers
@@ -9,10 +10,11 @@ namespace Advanced_Pet_Grooming.Controllers
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public AccountController(ApplicationDbContext context)
+        private readonly EmailService _emailService;
+        public AccountController(ApplicationDbContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // =========================
@@ -120,6 +122,163 @@ namespace Advanced_Pet_Grooming.Controllers
             SetCaptcha();
 
             return View();
+        }
+
+        // =========================
+        // FORGOT PASSWORD PAGE
+        // =========================
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                ViewBag.Error = "Please enter your email.";
+                return View();
+            }
+
+            email = email.Trim();
+
+            // Find customer account
+            Customer? customer = _context.Customers
+                .FirstOrDefault(c => c.email == email);
+
+            if (customer == null)
+            {
+                ViewBag.Error = "Email address was not found.";
+                return View();
+            }
+
+            // Generate reset token
+            string resetToken = Convert.ToHexString(
+                RandomNumberGenerator.GetBytes(32));
+
+            // Save reset token
+            customer.reset_token = resetToken;
+
+            // Token expires after 15 minutes
+            customer.reset_token_expiry = DateTime.Now.AddMinutes(15);
+
+            _context.SaveChanges();
+
+            // Create reset password link for testing
+            string? resetLink = Url.Action(
+                "ResetPassword",
+                "Account",
+                new { token = resetToken },
+                Request.Scheme
+            );
+
+            if (string.IsNullOrEmpty(resetLink))
+            {
+                ViewBag.Error = "Unable to generate reset link.";
+                return View();
+            }
+            string emailBody = $@"
+                <h2>Pet Grooming Appointment System</h2>
+                <p>You requested to reset your password.</p>
+                <p>Click the link below to reset your password:</p>
+                <a href='{resetLink}'>Reset Password</a>
+                <p>This link will expire in 15 minutes.</p>
+            ";
+
+            await _emailService.SendEmailAsync(
+                email,
+                "Pet Grooming System - Password Reset",
+                emailBody
+            );
+
+            ViewBag.Message = "Password reset link has been sent to your email.";
+
+            return View();
+        }
+
+        // =========================
+        // RESET PASSWORD PAGE
+        // =========================
+
+        [HttpGet]
+        public IActionResult ResetPassword(string token)
+        {
+            // Find customer using reset token
+            Customer? customer = _context.Customers
+                .FirstOrDefault(c => c.reset_token == token);
+
+            if (customer == null)
+            {
+                return Content("Invalid password reset link.");
+            }
+
+            // Check token expiry
+            if (customer.reset_token_expiry == null ||
+                customer.reset_token_expiry < DateTime.Now)
+            {
+                return Content("This password reset link has expired.");
+            }
+
+            ViewBag.Token = token;
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ResetPassword(
+            string token,
+            string newPassword,
+            string confirmPassword)
+        {
+            Customer? customer = _context.Customers
+                .FirstOrDefault(c => c.reset_token == token);
+
+            if (customer == null)
+            {
+                ViewBag.Error = "Invalid reset link.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+            if (customer.reset_token_expiry == null ||
+                customer.reset_token_expiry < DateTime.Now)
+            {
+                ViewBag.Error = "Reset link has expired.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword) ||
+                string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                ViewBag.Error = "Please fill in both password fields.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Error = "Passwords do not match.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+            customer.password_hash =
+                BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+            customer.reset_token = null;
+            customer.reset_token_expiry = null;
+
+            _context.SaveChanges();
+
+            TempData["Success"] = "Password reset successful! Please log in.";
+
+            return RedirectToAction("Login");
         }
 
         // =========================

@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Advanced_Pet_Grooming.Data;
+using Advanced_Pet_Grooming.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<EmailService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

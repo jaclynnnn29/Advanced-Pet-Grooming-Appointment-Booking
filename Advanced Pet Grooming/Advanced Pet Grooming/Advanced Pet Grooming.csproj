@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Advanced_Pet_Grooming</RootNamespace>
+    <UserSecretsId>aff301fc-2a31-49eb-874a-896ba4c3aca3</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
