@@ -1,0 +1,72 @@
+﻿@model Advanced_Pet_Grooming.Models.Customer
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container mt-5">
+    <div class="card shadow p-4 mx-auto" style="max-width: 600px;">
+
+        <h2 class="text-center mb-4">Edit Profile</h2>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">
+                @ViewBag.Error
+            </div>
+        }
+
+        <form asp-controller="CustomerProfile"
+              asp-action="Edit"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Full Name</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       value="@Model.name"
+                       required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Email Address</label>
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       value="@Model.email"
+                       required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Phone Number</label>
+                <input type="tel"
+                       name="phone_no"
+                       class="form-control"
+                       value="@Model.phone_no"
+                       minlength="10"
+                       maxlength="11"
+                       pattern="[0-9]{10,11}"
+                       title="Phone number must contain 10 to 11 digits only."
+                       required />
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit"
+                        class="btn btn-primary flex-fill">
+                    Save Changes
+                </button>
+
+                <a asp-controller="CustomerProfile"
+                   asp-action="Index"
+                   class="btn btn-secondary flex-fill">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
