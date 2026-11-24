@@ -24,7 +24,15 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Phone Number</label>
-                    <input asp-for="phone_no" class="form-control" required />
+                    <input type="tel"
+                           name="phone_no"
+                           class="form-control"
+                           placeholder="Enter phone number"
+                           minlength="10"
+                           maxlength="11"
+                           pattern="[0-9]{10,11}"
+                           title="Phone number must contain 10 to 11 digits only."
+                           required />
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Password</label>

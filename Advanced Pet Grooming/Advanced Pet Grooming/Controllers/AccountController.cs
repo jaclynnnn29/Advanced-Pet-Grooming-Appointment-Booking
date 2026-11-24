@@ -88,6 +88,28 @@ namespace Advanced_Pet_Grooming.Controllers
                 return View(model);
             }
 
+            // Validate phone number
+            bool phoneValid = true;
+
+            if (model.phone_no.Length < 10 || model.phone_no.Length > 11)
+            {
+                phoneValid = false;
+            }
+
+            for (int i = 0; i < model.phone_no.Length; i++)
+            {
+                if (model.phone_no[i] < '0' || model.phone_no[i] > '9')
+                {
+                    phoneValid = false;
+                }
+            }
+
+            if (!phoneValid)
+            {
+                ViewBag.Error = "Phone number must contain 10 to 11 digits only.";
+                return View(model);
+            }
+
             // Create new customer
             Customer customer = new Customer();
 
