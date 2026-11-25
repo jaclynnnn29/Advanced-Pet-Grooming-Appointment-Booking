@@ -11,6 +11,7 @@ namespace Advanced_Pet_Grooming.Data
 
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Pet> Pets { get; set; }
+        public DbSet<PetPhoto> PetPhotos { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Staff> Staffs { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
