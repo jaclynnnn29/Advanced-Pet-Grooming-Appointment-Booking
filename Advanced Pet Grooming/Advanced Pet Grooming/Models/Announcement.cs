@@ -6,24 +6,25 @@ namespace Advanced_Pet_Grooming.Models
     public class Announcement
     {
         [Key]
-        public int announcement_id { get; set; }
+        public int AnnouncementId { get; set; }
+
+        [Required(ErrorMessage = "Title is required")]
+        [StringLength(150)]
+        public string Title { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Description is required")]
+        public string Description { get; set; } = string.Empty;
+
+        public string? ImagePath { get; set; }
+
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
 
         [Required]
-        public int staff_id { get; set; }
-
-        [Required, StringLength(150)]
-        public string title { get; set; } = string.Empty;
+        public string Status { get; set; } = "Active"; // "Active" or "Inactive"
 
         [Required]
-        public string content { get; set; } = string.Empty;
-
-        public DateTime publish_date { get; set; } = DateTime.Now;
-
-        [Required, StringLength(20)]
-        public string status { get; set; } = "Active"; // Active, Archived
-
-        // Navigation property
-        [ForeignKey("staff_id")]
-        public Staff? Staff { get; set; }
+        [DataType(DataType.Date)]
+        public DateTime Date { get; set; } = DateTime.Now;
     }
 }

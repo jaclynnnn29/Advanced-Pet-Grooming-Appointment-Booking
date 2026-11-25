@@ -1,8 +1,25 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Pet Grooming ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Section -->
+<div class="p-5 mb-4 bg-body-tertiary rounded-3 shadow-sm border text-center">
+    <div class="container-fluid py-4">
+        <h1 class="display-4 fw-bold text-primary">Welcome To PickAGroom! 🐾</h1>
+        <!-- Changed text-muted to text-body-secondary -->
+        <p class="col-md-8 fs-4 mx-auto text-body-secondary">
+            Professional grooming services tailored for Pets.<br />
+            Book your appointment right now.
+        </p>
+        <a asp-controller="Booking" asp-action="Create" class="btn btn-primary btn-lg px-4 me-md-2">Book an Appointment Now</a>
+        <a asp-controller="Booking" asp-action="Index" class="btn btn-outline-secondary btn-lg px-4">View All Services</a>
+    </div>
+</div>
+
+<!-- Featured Services Section -->
+<div class="container my-5">
+    <h3 class="text-center mb-4">Our Popular Services</h3>
+    <div class="row">
+        
+    </div>
 </div>

@@ -24,33 +24,35 @@ namespace Advanced_Pet_Grooming.Migrations
 
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Announcement", b =>
                 {
-                    b.Property<int>("announcement_id")
+                    b.Property<int>("AnnouncementId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("announcement_id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnnouncementId"));
 
-                    b.Property<string>("content")
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("publish_date")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("staff_id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("status")
+                    b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("title")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.HasKey("announcement_id");
+                    b.Property<int?>("staff_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("AnnouncementId");
 
                     b.HasIndex("staff_id");
 
@@ -295,13 +297,9 @@ namespace Advanced_Pet_Grooming.Migrations
 
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Announcement", b =>
                 {
-                    b.HasOne("Advanced_Pet_Grooming.Models.Staff", "Staff")
+                    b.HasOne("Advanced_Pet_Grooming.Models.Staff", null)
                         .WithMany("Announcements")
-                        .HasForeignKey("staff_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Staff");
+                        .HasForeignKey("staff_id");
                 });
 
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Appointment", b =>

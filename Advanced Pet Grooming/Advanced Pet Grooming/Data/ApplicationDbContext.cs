@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Advanced_Pet_Grooming.Models;
+﻿using Advanced_Pet_Grooming.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Advanced_Pet_Grooming.Data
 {
