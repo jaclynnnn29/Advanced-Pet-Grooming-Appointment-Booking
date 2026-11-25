@@ -9,10 +9,12 @@ builder.Services.AddScoped<EmailService>();
 builder.Services.AddControllersWithViews();
 
 // 1. Register SQL Server DbContext
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 2. Enable Session for Login & Role Management
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
