@@ -1,0 +1,53 @@
+﻿@model Advanced_Pet_Grooming.Models.Customer
+
+@{
+    ViewData["Title"] = "Delete Account";
+}
+
+<div class="container mt-5">
+    <div class="card shadow p-4 mx-auto text-center"
+         style="max-width: 600px;">
+
+        <h2 class="text-danger mb-3">Delete Account</h2>
+
+        <p class="mb-3">
+            Are you sure you want to delete your account?
+        </p>
+
+        <div class="alert alert-warning text-start">
+            <strong>Important:</strong>
+            <ul class="mb-0 mt-2">
+                <li>You will no longer be able to log in.</li>
+                <li>Your previous appointment records will be retained.</li>
+                <li>Your previous payment records will be retained.</li>
+                <li>You can register again using the same email address.</li>
+            </ul>
+        </div>
+
+        <p class="fw-bold">
+            Account: @Model.email
+        </p>
+
+        <form asp-controller="CustomerProfile"
+              asp-action="DeleteConfirmed"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit"
+                        class="btn btn-danger flex-fill">
+                    Yes, Delete My Account
+                </button>
+
+                <a asp-controller="CustomerProfile"
+                   asp-action="Index"
+                   class="btn btn-secondary flex-fill">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>

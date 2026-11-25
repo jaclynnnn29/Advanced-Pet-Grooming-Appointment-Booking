@@ -138,5 +138,62 @@ namespace Advanced_Pet_Grooming.Controllers
             return RedirectToAction("Index");
         }
 
+
+        // GET: Confirm Delete Account
+        [HttpGet]
+        public IActionResult Delete()
+        {
+            int? customerId = HttpContext.Session.GetInt32("UserId");
+
+            if (customerId == null ||
+                HttpContext.Session.GetString("UserRole") != "Customer")
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var customer = _context.Customers
+                .FirstOrDefault(c => c.customer_id == customerId);
+
+            if (customer == null || customer.account_status != "Active")
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            return View(customer);
+        }
+
+        // POST: Delete Customer Account
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed()
+        {
+            int? customerId = HttpContext.Session.GetInt32("UserId");
+
+            if (customerId == null ||
+                HttpContext.Session.GetString("UserRole") != "Customer")
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var customer = _context.Customers
+                .FirstOrDefault(c => c.customer_id == customerId);
+
+            if (customer == null || customer.account_status != "Active")
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Soft Delete: Keep Customer records in Database
+            customer.account_status = "Deleted";
+
+            _context.SaveChanges();
+
+            // Clear login session
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Login", "Account");
+        }
+
+
     }
 }

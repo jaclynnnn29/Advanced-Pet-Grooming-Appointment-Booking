@@ -53,6 +53,7 @@ namespace Advanced_Pet_Grooming.Controllers
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Register(Customer model, string password)
@@ -67,38 +68,22 @@ namespace Advanced_Pet_Grooming.Controllers
                 return View(model);
             }
 
-            // Check duplicate email
+            // Get email
             string email = model.email.Trim();
 
-            bool emailExists = false;
-
-            if (_context.Customers.Any(c => c.email == email))
-            {
-                emailExists = true;
-            }
-
-            if (_context.Staffs.Any(s => s.email == email))
-            {
-                emailExists = true;
-            }
-
-            if (emailExists)
-            {
-                ViewBag.Error = "Email is already registered.";
-                return View(model);
-            }
-
             // Validate phone number
+            string phone = model.phone_no.Trim();
+
             bool phoneValid = true;
 
-            if (model.phone_no.Length < 10 || model.phone_no.Length > 11)
+            if (phone.Length < 10 || phone.Length > 11)
             {
                 phoneValid = false;
             }
 
-            for (int i = 0; i < model.phone_no.Length; i++)
+            for (int i = 0; i < phone.Length; i++)
             {
-                if (model.phone_no[i] < '0' || model.phone_no[i] > '9')
+                if (phone[i] < '0' || phone[i] > '9')
                 {
                     phoneValid = false;
                 }
@@ -110,16 +95,72 @@ namespace Advanced_Pet_Grooming.Controllers
                 return View(model);
             }
 
-            // Create new customer
+            // Check if email belongs to Staff, Admin or Groomer
+            bool staffEmailExists = _context.Staffs.Any(s =>
+                s.email.ToLower() == email.ToLower());
+
+            if (staffEmailExists)
+            {
+                ViewBag.Error = "Email is already registered.";
+                return View(model);
+            }
+
+            // Find existing Customer using the same email
+            var existingCustomer = _context.Customers
+                .FirstOrDefault(c =>
+                    c.email.ToLower() == email.ToLower());
+
+            if (existingCustomer != null)
+            {
+                // Active account cannot register again
+                if (existingCustomer.account_status == "Active")
+                {
+                    ViewBag.Error = "Email is already registered.";
+                    return View(model);
+                }
+
+                // Only Deleted account can be restored
+                if (existingCustomer.account_status != "Deleted")
+                {
+                    ViewBag.Error = "This account cannot be registered again.";
+                    return View(model);
+                }
+
+                // Restore existing Customer account
+                existingCustomer.name = model.name.Trim();
+                existingCustomer.email = email;
+                existingCustomer.phone_no = phone;
+
+                // Update password
+                existingCustomer.password_hash =
+                    BCrypt.Net.BCrypt.HashPassword(password);
+
+                // Reactivate account
+                existingCustomer.account_status = "Active";
+
+                // Reset login security
+                existingCustomer.failed_login_attempts = 0;
+                existingCustomer.locked_until = null;
+
+                // Clear old password reset information
+                existingCustomer.reset_token = null;
+                existingCustomer.reset_token_expiry = null;
+
+                _context.SaveChanges();
+
+                TempData["Success"] = "Your previous account has been successfully restored! Please log in.";
+
+                return RedirectToAction("Login");
+            }
+
+            // Create new Customer if email does not exist
             Customer customer = new Customer();
 
             customer.name = model.name.Trim();
             customer.email = email;
-            customer.phone_no = model.phone_no.Trim();
+            customer.phone_no = phone;
 
-            // Hash password before saving
-            customer.password_hash =
-                BCrypt.Net.BCrypt.HashPassword(password);
+            customer.password_hash = BCrypt.Net.BCrypt.HashPassword(password);
 
             customer.account_status = "Active";
             customer.created_at = DateTime.Now;
@@ -133,6 +174,7 @@ namespace Advanced_Pet_Grooming.Controllers
 
             return RedirectToAction("Login");
         }
+
 
         // =========================
         // LOGIN PAGE
