@@ -67,6 +67,6 @@ namespace Advanced_Pet_Grooming.Models
         [ForeignKey("customer_id")]
         public Customer? Customer { get; set; }
         public ICollection<PetPhoto>? PetPhotos { get; set; }
-        //public ICollection<Appointment>? Appointments { get; set; }
+        public ICollection<Appointment>? Appointments { get; set; }
     }
 }
