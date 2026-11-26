@@ -253,32 +253,46 @@ namespace Advanced_Pet_Grooming.Controllers
             ModelState.Remove("PetPhotos");
             ModelState.Remove("size_category");
 
-            if (pet.is_vaccinated)
+
+            // Check vaccination information
+            bool hasVaccineName =
+                !string.IsNullOrWhiteSpace(pet.vaccine_name);
+
+            bool hasVaccinationDate =
+                pet.vaccination_date.HasValue;
+
+            bool hasExpiryDate =
+                pet.vaccination_expiry_date.HasValue;
+
+            // All vaccination information is empty
+            if (!hasVaccineName && !hasVaccinationDate && !hasExpiryDate)
             {
-                if (string.IsNullOrWhiteSpace(pet.vaccine_name))
-                {
-                    ModelState.AddModelError("vaccine_name",
-                        "Please enter vaccine name.");
-                }
+                pet.is_vaccinated = false;
+            }
 
-                if (pet.vaccination_date == null)
-                {
-                    ModelState.AddModelError("vaccination_date",
-                        "Please enter vaccination date.");
-                }
+            // All vaccination information is provided
+            else if (hasVaccineName && hasVaccinationDate && hasExpiryDate)
+            {
+                pet.is_vaccinated = true;
 
-                if (pet.vaccination_expiry_date == null)
+                if (pet.vaccination_expiry_date is DateTime expiryDate &&
+                    pet.vaccination_date is DateTime vaccinationDate &&
+                    expiryDate < vaccinationDate)
                 {
-                    ModelState.AddModelError("vaccination_expiry_date",
-                        "Please enter expiry date.");
+                    ModelState.AddModelError(
+                        "vaccination_expiry_date",
+                        "Expiry date cannot be earlier than vaccination date.");
                 }
             }
+
+            // Some information is missing
             else
             {
-                pet.vaccine_name = null;
-                pet.vaccination_date = null;
-                pet.vaccination_expiry_date = null;
+                ModelState.AddModelError(
+                    "vaccine_name",
+                    "Please provide complete vaccination information.");
             }
+
 
             // Check photos
             if (!ValidatePhotos(photos))
@@ -383,30 +397,44 @@ namespace Advanced_Pet_Grooming.Controllers
             ModelState.Remove("size_category");
 
             // Check vaccination information
-            if (pet.is_vaccinated)
+            bool hasVaccineName =
+                !string.IsNullOrWhiteSpace(pet.vaccine_name);
+
+            bool hasVaccinationDate =
+                pet.vaccination_date.HasValue;
+
+            bool hasExpiryDate =
+                pet.vaccination_expiry_date.HasValue;
+
+            // All vaccination information is empty
+            if (!hasVaccineName && !hasVaccinationDate && !hasExpiryDate)
             {
-                if (string.IsNullOrWhiteSpace(pet.vaccine_name) ||
-                    pet.vaccination_date == null ||
-                    pet.vaccination_expiry_date == null)
-                {
-                    ModelState.AddModelError(
-                        "vaccine_name",
-                        "Please provide complete vaccination information.");
-                }
-                else if (pet.vaccination_expiry_date <
-                         pet.vaccination_date)
+                pet.is_vaccinated = false;
+            }
+
+            // All vaccination information is provided
+            else if (hasVaccineName && hasVaccinationDate && hasExpiryDate)
+            {
+                pet.is_vaccinated = true;
+
+                if (pet.vaccination_expiry_date is DateTime expiryDate &&
+                    pet.vaccination_date is DateTime vaccinationDate &&
+                    expiryDate < vaccinationDate)
                 {
                     ModelState.AddModelError(
                         "vaccination_expiry_date",
                         "Expiry date cannot be earlier than vaccination date.");
                 }
             }
+
+            // Some information is missing
             else
             {
-                pet.vaccine_name = null;
-                pet.vaccination_date = null;
-                pet.vaccination_expiry_date = null;
+                ModelState.AddModelError(
+                    "vaccine_name",
+                    "Please provide complete vaccination information.");
             }
+
 
             if (!ValidatePhotos(photos))
             {

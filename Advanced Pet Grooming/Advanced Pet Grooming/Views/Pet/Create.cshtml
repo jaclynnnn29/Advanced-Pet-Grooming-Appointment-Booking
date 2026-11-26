@@ -124,108 +124,79 @@
             </div>
         </div>
 
-        <!-- Vaccination Information -->
+        
         <div class="card shadow-sm mb-4">
+
             <div class="card-header bg-light">
                 <h5 class="mb-0">Vaccination Information</h5>
             </div>
 
             <div class="card-body">
 
-                <div class="mb-3">
-                    <label class="form-label">
-                        Has your pet been vaccinated? *
-                    </label>
+                <div class="row">
 
-                    <div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input"
-                                   type="radio"
-                                   name="is_vaccinated"
-                                   id="vaccinatedYes"
-                                   value="true"
-                                   checked="@(Model?.is_vaccinated == true)" />
+                    
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="vaccine_name" class="form-label">
+                            Vaccine Name
+                        </label>
 
-                            <label class="form-check-label"
-                                   for="vaccinatedYes">
-                                Yes
-                            </label>
-                        </div>
+                        <input asp-for="vaccine_name"
+                               class="form-control"
+                               list="vaccineOptions"
+                               placeholder="Select or enter vaccine name" />
 
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input"
-                                   type="radio"
-                                   name="is_vaccinated"
-                                   id="vaccinatedNo"
-                                   value="false"
-                                   checked="@(Model == null || !Model.is_vaccinated)" />
+                        <datalist id="vaccineOptions">
+                            <option value="Rabies Vaccine"></option>
+                            <option value="DHPP Vaccine"></option>
+                            <option value="Bordetella Vaccine"></option>
+                            <option value="Leptospirosis Vaccine"></option>
+                            <option value="FVRCP Vaccine"></option>
+                            <option value="FeLV Vaccine"></option>
+                        </datalist>
 
-                            <label class="form-check-label"
-                                   for="vaccinatedNo">
-                                No
-                            </label>
-                        </div>
+                        <span asp-validation-for="vaccine_name"
+                              class="text-danger"></span>
                     </div>
-                </div>
 
-                <div id="vaccinationFields">
 
-                    <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="vaccination_date" class="form-label">
+                            Vaccination Date
+                        </label>
 
-                        <div class="col-md-4 mb-3">
-                            <label asp-for="vaccine_name"
-                                   class="form-label">
-                                Vaccine Name *
-                            </label>
+                        <input asp-for="vaccination_date"
+                               type="date"
+                               class="form-control" />
 
-                            <input asp-for="vaccine_name"
-                                   class="form-control"
-                                   placeholder="Enter vaccine name" />
-
-                            <span asp-validation-for="vaccine_name"
-                                  class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label asp-for="vaccination_date"
-                                   class="form-label">
-                                Vaccination Date *
-                            </label>
-
-                            <input asp-for="vaccination_date"
-                                   type="date"
-                                   class="form-control" />
-
-                            <span asp-validation-for="vaccination_date"
-                                  class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label asp-for="vaccination_expiry_date"
-                                   class="form-label">
-                                Expiry Date *
-                            </label>
-
-                            <input asp-for="vaccination_expiry_date"
-                                   type="date"
-                                   class="form-control" />
-
-                            <span asp-validation-for="vaccination_expiry_date"
-                                  class="text-danger"></span>
-                        </div>
-
+                        <span asp-validation-for="vaccination_date"
+                              class="text-danger"></span>
                     </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="vaccination_expiry_date" class="form-label">
+                            Expiry Date
+                        </label>
+
+                        <input asp-for="vaccination_expiry_date"
+                               type="date"
+                               class="form-control" />
+
+                        <span asp-validation-for="vaccination_expiry_date"
+                              class="text-danger"></span>
+                    </div>
+
                 </div>
 
                 <small class="text-muted">
-                    If your pet has not been vaccinated, you can still
-                    register the pet. However, grooming appointments
-                    will be restricted until valid vaccination
-                    information is provided.
+                    If vaccination information is not provided,
+                    grooming appointments will be restricted until
+                    valid vaccination information is available.
                 </small>
 
             </div>
         </div>
+
 
         <!-- Medical Information -->
         <div class="card shadow-sm mb-4">
