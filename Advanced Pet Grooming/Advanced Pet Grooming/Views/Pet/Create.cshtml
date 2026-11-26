@@ -1,0 +1,351 @@
+﻿@model Advanced_Pet_Grooming.Models.Pet
+
+@{
+    ViewData["Title"] = "Add New Pet";
+}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">Add New Pet</h2>
+        <p class="text-muted">
+            Please provide your pet's information below.
+        </p>
+    </div>
+
+    <form asp-action="Create"
+          asp-controller="Pet"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <!-- Basic Information -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Basic Information</h5>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="pet_name" class="form-label">
+                            Pet Name *
+                        </label>
+
+                        <input asp-for="pet_name"
+                               class="form-control"
+                               placeholder="Enter pet name" />
+
+                        <span asp-validation-for="pet_name"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="pet_type" class="form-label">
+                            Pet Type *
+                        </label>
+
+                        <select asp-for="pet_type" class="form-select">
+                            <option value="">-- Select Pet Type --</option>
+                            <option value="Dog">Dog</option>
+                            <option value="Cat">Cat</option>
+                        </select>
+
+                        <span asp-validation-for="pet_type"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="breed" class="form-label">
+                            Breed
+                        </label>
+
+                        <input asp-for="breed"
+                               class="form-control"
+                               placeholder="Enter breed" />
+
+                        <span asp-validation-for="breed"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="gender" class="form-label">
+                            Gender *
+                        </label>
+
+                        <select asp-for="gender" class="form-select">
+                            <option value="">-- Select Gender --</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+
+                        <span asp-validation-for="gender"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="age" class="form-label">
+                            Age (Years) *
+                        </label>
+
+                        <input asp-for="age"
+                               type="number"
+                               min="0"
+                               class="form-control"
+                               placeholder="Enter age" />
+
+                        <span asp-validation-for="age"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="weight" class="form-label">
+                            Weight (kg) *
+                        </label>
+
+                        <input asp-for="weight"
+                               type="number"
+                               step="0.01"
+                               min="0.01"
+                               id="weight"
+                               class="form-control"
+                               placeholder="Enter weight" />
+
+                        <span asp-validation-for="weight"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Vaccination Information -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Vaccination Information</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Has your pet been vaccinated? *
+                    </label>
+
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="is_vaccinated"
+                                   id="vaccinatedYes"
+                                   value="true"
+                                   checked="@(Model?.is_vaccinated == true)" />
+
+                            <label class="form-check-label"
+                                   for="vaccinatedYes">
+                                Yes
+                            </label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="is_vaccinated"
+                                   id="vaccinatedNo"
+                                   value="false"
+                                   checked="@(Model == null || !Model.is_vaccinated)" />
+
+                            <label class="form-check-label"
+                                   for="vaccinatedNo">
+                                No
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="vaccinationFields">
+
+                    <div class="row">
+
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="vaccine_name"
+                                   class="form-label">
+                                Vaccine Name *
+                            </label>
+
+                            <input asp-for="vaccine_name"
+                                   class="form-control"
+                                   placeholder="Enter vaccine name" />
+
+                            <span asp-validation-for="vaccine_name"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="vaccination_date"
+                                   class="form-label">
+                                Vaccination Date *
+                            </label>
+
+                            <input asp-for="vaccination_date"
+                                   type="date"
+                                   class="form-control" />
+
+                            <span asp-validation-for="vaccination_date"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="vaccination_expiry_date"
+                                   class="form-label">
+                                Expiry Date *
+                            </label>
+
+                            <input asp-for="vaccination_expiry_date"
+                                   type="date"
+                                   class="form-control" />
+
+                            <span asp-validation-for="vaccination_expiry_date"
+                                  class="text-danger"></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <small class="text-muted">
+                    If your pet has not been vaccinated, you can still
+                    register the pet. However, grooming appointments
+                    will be restricted until valid vaccination
+                    information is provided.
+                </small>
+
+            </div>
+        </div>
+
+        <!-- Medical Information -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Medical Information</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label asp-for="medical_record"
+                           class="form-label">
+                        Medical Notes
+                    </label>
+
+                    <textarea asp-for="medical_record"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Enter medical conditions, allergies or special care needs"></textarea>
+
+                    <span asp-validation-for="medical_record"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="pet_remark"
+                           class="form-label">
+                        Pet Remark
+                    </label>
+
+                    <textarea asp-for="pet_remark"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Enter pet personality or behaviour information"></textarea>
+
+                    <span asp-validation-for="pet_remark"
+                          class="text-danger"></span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Pet Photos -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Pet Photos</h5>
+            </div>
+
+            <div class="card-body">
+
+                <label class="form-label">
+                    Upload Pet Photos
+                </label>
+
+                <input type="file"
+                       name="photos"
+                       class="form-control"
+                       accept=".jpg,.jpeg,.png,.webp"
+                       multiple />
+
+                <small class="text-muted">
+                    You can select multiple photos.
+                    Supported formats: JPG, JPEG, PNG and WEBP.
+                    Maximum 5MB per photo.
+                </small>
+
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end gap-2 mb-4">
+
+            <a asp-action="Index"
+               asp-controller="Pet"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                Add Pet
+            </button>
+
+        </div>
+
+    </form>
+</div>
+
+                    
+const vaccinatedYes = document.getElementById("vaccinatedYes");
+const vaccinatedNo = document.getElementById("vaccinatedNo");
+
+const vaccinationFields = document.getElementById("vaccinationFields");
+
+// Get all vaccination input fields
+const vaccinationInputs = vaccinationFields.querySelectorAll("input");
+
+// Enable or disable vaccination fields
+function toggleVaccinationFields() {
+
+if (vaccinatedYes.checked) {
+
+vaccinationInputs.forEach(input => {
+input.disabled = false;
+});
+
+vaccinationFields.style.opacity = "1";
+}
+else {
+
+vaccinationInputs.forEach(input => {
+input.disabled = true;
+});
+
+vaccinationFields.style.opacity = "0.5";
+}
+}
+
+// Detect radio button changes
+vaccinatedYes.addEventListener("change", toggleVaccinationFields);
+vaccinatedNo.addEventListener("change", toggleVaccinationFields);
+
+// Check status when page loads
+toggleVaccinationFields();

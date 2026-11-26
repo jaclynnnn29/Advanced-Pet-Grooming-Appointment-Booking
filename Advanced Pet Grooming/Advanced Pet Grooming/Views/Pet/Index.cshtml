@@ -1,0 +1,204 @@
+﻿@model IEnumerable<Advanced_Pet_Grooming.Models.Pet>
+
+@{
+    ViewData["Title"] = "My Pets";
+}
+
+<div class="container py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">My Pets</h2>
+            <p class="text-muted">
+                Manage your pet profiles.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <!-- Search Pet -->
+            <form asp-action="Index"
+                  method="get"
+                  class="d-flex gap-2">
+
+                <input type="text"
+                       name="searchString"
+                       value="@ViewBag.SearchString"
+                       class="form-control"
+                       placeholder="Search pet name..." />
+
+                <button type="submit"
+                        class="btn btn-outline-primary">
+                    Search
+                </button>
+
+            </form>
+
+            <!-- Add New Pet -->
+            <a asp-action="Create"
+               class="btn btn-primary text-nowrap">
+                + Add New Pet
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <!-- Pet List -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+
+            @foreach (var pet in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+
+                    <div class="card shadow-sm h-100">
+
+                        <!-- Pet Photo -->
+                        @if (pet.PetPhotos != null && pet.PetPhotos.Any())
+                        {
+                            <img src="@pet.PetPhotos.First().PhotoPath"
+                                 class="card-img-top"
+                                 alt="@pet.pet_name"
+                                 style="height:220px; object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center"
+                                 style="height:220px;">
+                                <span class="text-muted">
+                                    No Pet Photo
+                                </span>
+                            </div>
+                        }
+
+                        <!-- Pet Information -->
+                        <div class="card-body">
+
+                            <h5 class="card-title fw-bold">
+                                @pet.pet_name
+                            </h5>
+
+                            <p class="mb-1">
+                                <strong>Pet Type:</strong> @pet.pet_type
+                            </p>
+
+                            <p class="mb-1">
+                                <strong>Breed:</strong> @(pet.breed ?? "Not specified")
+                            </p>
+
+                            <p class="mb-1">
+                                <strong>Gender:</strong> @pet.gender
+                            </p>
+
+                            <p class="mb-1">
+                                <strong>Age:</strong> @pet.age years
+                            </p>
+
+                            <p class="mb-1">
+                                <strong>Weight:</strong> @pet.weight kg
+                            </p>
+
+                            @if (pet.is_vaccinated)
+                            {
+                                <span class="badge bg-success">
+                                    Vaccinated
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Not Vaccinated
+                                </span>
+                            }
+
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger">
+                                    @TempData["ErrorMessage"]
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="card-footer bg-white">
+
+                            <div class="d-flex gap-2">
+
+                                <a asp-action="Details"
+                                   asp-route-id="@pet.pet_id"
+                                   class="btn btn-info btn-sm text-white">
+                                    View
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@pet.pet_id"
+                                   class="btn btn-warning btn-sm">
+                                    Edit
+                                </a>
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@pet.pet_id"
+                                   class="btn btn-danger btn-sm">
+                                    Delete
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <!-- Empty Pet List -->
+        <div class="text-center py-5">
+
+            @if (!string.IsNullOrWhiteSpace(ViewBag.SearchString))
+            {
+                <h5>No Matching Pets Found</h5>
+
+                <p class="text-muted">
+                    No pet found with the name
+                    "@ViewBag.SearchString".
+                </p>
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Clear Search
+                </a>
+            }
+            else
+            {
+                <h5>No Pets Added Yet</h5>
+
+                <p class="text-muted">
+                    You have not added any pets to your profile.
+                </p>
+
+                <a asp-action="Create"
+                   class="btn btn-primary">
+                    Add Your First Pet
+                </a>
+            }
+
+        </div>
+    }
+
+</div>

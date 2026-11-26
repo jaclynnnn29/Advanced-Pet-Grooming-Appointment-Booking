@@ -1,0 +1,210 @@
+﻿@model Advanced_Pet_Grooming.Models.Pet
+
+@{
+    ViewData["Title"] = "Pet Details";
+}
+
+<div class="container py-4">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="fw-bold">Pet Details</h2>
+        <p class="text-muted">
+            View your pet's complete information.
+        </p>
+    </div>
+
+    <!-- Basic Information -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Basic Information</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <strong>Pet Name:</strong>
+                    <p>@Model.pet_name</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Pet Type:</strong>
+                    <p>@Model.pet_type</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Breed:</strong>
+                    <p>@(Model.breed ?? "Not specified")</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Gender:</strong>
+                    <p>@Model.gender</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Age:</strong>
+                    <p>@Model.age years</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Weight:</strong>
+                    <p>@Model.weight kg</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Vaccination Information -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Vaccination Information</h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.is_vaccinated)
+            {
+                <p>
+                    <strong>Vaccination Status:</strong>
+                    <span class="badge bg-success">Vaccinated</span>
+                </p>
+
+                <p>
+                    <strong>Vaccine Name:</strong>
+                    @(Model.vaccine_name ?? "Not specified")
+                </p>
+
+                <p>
+                    <strong>Vaccination Date:</strong>
+                    @(Model.vaccination_date?.ToString("dd/MM/yyyy") ?? "Not specified")
+                </p>
+
+                <p>
+                    <strong>Expiry Date:</strong>
+                    @(Model.vaccination_expiry_date?.ToString("dd/MM/yyyy") ?? "Not specified")
+                </p>
+
+                @if (Model.vaccination_expiry_date < DateTime.Today)
+                {
+                    <span class="badge bg-danger">
+                        Vaccination Expired
+                    </span>
+                }
+                else if (Model.vaccination_expiry_date == null)
+                {
+                    <span class="badge bg-warning text-dark">
+                        Expiry Date Missing
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-success">
+                        Vaccination Valid
+                    </span>
+                }
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark">
+                    Not Vaccinated
+                </span>
+
+                <p class="text-muted mt-2">
+                    No vaccination information available.
+                </p>
+            }
+
+        </div>
+    </div>
+
+    <!-- Medical Information -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Medical Information</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-3">
+                <strong>Medical Notes:</strong>
+                <p>
+                    @(string.IsNullOrWhiteSpace(Model.medical_record)
+                        ? "No medical notes available."
+                        : Model.medical_record)
+                </p>
+            </div>
+
+            <div class="mb-3">
+                <strong>Pet Remark:</strong>
+                <p>
+                    @(string.IsNullOrWhiteSpace(Model.pet_remark)
+                        ? "No pet remarks available."
+                        : Model.pet_remark)
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Pet Photos -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Pet Photos</h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.PetPhotos != null && Model.PetPhotos.Any())
+            {
+                <div class="row">
+
+                    @foreach (var photo in Model.PetPhotos)
+                    {
+                        <div class="col-md-4 col-sm-6 mb-3">
+
+                            <img src="@photo.PhotoPath"
+                                 alt="@Model.pet_name"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="width:100%; height:220px; object-fit:cover;" />
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">
+                    No photos uploaded for this pet.
+                </p>
+            }
+
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="d-flex justify-content-end gap-2">
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            Back to Pet List
+        </a>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.pet_id"
+           class="btn btn-warning">
+            Edit Pet
+        </a>
+
+    </div>
+
+</div>
