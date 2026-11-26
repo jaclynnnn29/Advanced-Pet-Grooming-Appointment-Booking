@@ -188,12 +188,6 @@
 
                 </div>
 
-                <small class="text-muted">
-                    If vaccination information is not provided,
-                    grooming appointments will be restricted until
-                    valid vaccination information is available.
-                </small>
-
             </div>
         </div>
 
@@ -215,6 +209,7 @@
                     <textarea asp-for="medical_record"
                               class="form-control"
                               rows="3"
+                              maxlength="200"
                               placeholder="Enter medical conditions, allergies or special care needs"></textarea>
 
                     <span asp-validation-for="medical_record"
@@ -230,6 +225,7 @@
                     <textarea asp-for="pet_remark"
                               class="form-control"
                               rows="3"
+                              maxlength="200"
                               placeholder="Enter pet personality or behaviour information"></textarea>
 
                     <span asp-validation-for="pet_remark"
@@ -283,40 +279,3 @@
 
     </form>
 </div>
-
-                    
-const vaccinatedYes = document.getElementById("vaccinatedYes");
-const vaccinatedNo = document.getElementById("vaccinatedNo");
-
-const vaccinationFields = document.getElementById("vaccinationFields");
-
-// Get all vaccination input fields
-const vaccinationInputs = vaccinationFields.querySelectorAll("input");
-
-// Enable or disable vaccination fields
-function toggleVaccinationFields() {
-
-if (vaccinatedYes.checked) {
-
-vaccinationInputs.forEach(input => {
-input.disabled = false;
-});
-
-vaccinationFields.style.opacity = "1";
-}
-else {
-
-vaccinationInputs.forEach(input => {
-input.disabled = true;
-});
-
-vaccinationFields.style.opacity = "0.5";
-}
-}
-
-// Detect radio button changes
-vaccinatedYes.addEventListener("change", toggleVaccinationFields);
-vaccinatedNo.addEventListener("change", toggleVaccinationFields);
-
-// Check status when page loads
-toggleVaccinationFields();

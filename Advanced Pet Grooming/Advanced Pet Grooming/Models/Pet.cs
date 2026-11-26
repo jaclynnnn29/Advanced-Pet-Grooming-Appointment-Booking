@@ -56,10 +56,11 @@ namespace Advanced_Pet_Grooming.Models
         public DateTime? vaccination_expiry_date { get; set; }
 
         // Medical Information
-        [StringLength(500)]
+        [StringLength(200)]
         [Column("MedicalNotes")]
         public string? medical_record { get; set; }
 
+        [StringLength(200)]
         [Column("PetRemark")]
         public string? pet_remark { get; set; }
 

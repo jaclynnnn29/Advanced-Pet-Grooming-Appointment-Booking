@@ -351,38 +351,3 @@
 </div>
 
 
-const vaccinatedYes = document.getElementById("vaccinatedYes");
-const vaccinatedNo = document.getElementById("vaccinatedNo");
-
-const vaccinationFields = document.getElementById("vaccinationFields");
-
-// Get all vaccination input fields
-const vaccinationInputs = vaccinationFields.querySelectorAll("input");
-
-// Enable or disable vaccination fields
-function toggleVaccinationFields() {
-
-if (vaccinatedYes.checked) {
-
-vaccinationInputs.forEach(input => {
-input.disabled = false;
-});
-
-vaccinationFields.style.opacity = "1";
-}
-else {
-
-vaccinationInputs.forEach(input => {
-input.disabled = true;
-});
-
-vaccinationFields.style.opacity = "0.5";
-}
-}
-
-// Detect radio button changes
-vaccinatedYes.addEventListener("change", toggleVaccinationFields);
-vaccinatedNo.addEventListener("change", toggleVaccinationFields);
-
-// Check status when page loads
-toggleVaccinationFields();
