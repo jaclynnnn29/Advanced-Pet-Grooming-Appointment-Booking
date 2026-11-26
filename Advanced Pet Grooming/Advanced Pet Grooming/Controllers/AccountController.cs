@@ -523,13 +523,24 @@ namespace Advanced_Pet_Grooming.Controllers
         // LOGOUT
         // =========================
 
+        // GET: Account/Logout
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            return View();
+        }
+
+        // POST: Account/Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Logout()
+        [ActionName("Logout")]
+        public IActionResult LogoutConfirmed()
         {
             HttpContext.Session.Clear();
 
-            return RedirectToAction("Login");
+            return RedirectToAction("Index", "Home");
         }
+
+
     }
 }

@@ -5,41 +5,67 @@
 }
 
 <div class="container mt-5">
-    <div class="card shadow p-4 mx-auto" style="max-width: 600px;">
+
+    <div class="card shadow p-4 mx-auto" style="max-width: 700px;">
 
         <h2 class="text-center mb-4">My Profile</h2>
 
+        <!-- Customer Information -->
         <div class="mb-3">
             <label class="form-label fw-bold">Full Name</label>
-            <input type="text" class="form-control"
-                   value="@Model.name" readonly />
+            <input type="text"
+                   class="form-control"
+                   value="@Model.name"
+                   readonly />
         </div>
 
         <div class="mb-3">
             <label class="form-label fw-bold">Email Address</label>
-            <input type="email" class="form-control"
-                   value="@Model.email" readonly />
+            <input type="email"
+                   class="form-control"
+                   value="@Model.email"
+                   readonly />
         </div>
 
         <div class="mb-3">
             <label class="form-label fw-bold">Phone Number</label>
-            <input type="text" class="form-control"
-                   value="@Model.phone_no" readonly />
+            <input type="text"
+                   class="form-control"
+                   value="@Model.phone_no"
+                   readonly />
         </div>
 
-        <div class="d-flex gap-2 mt-3">
-            <a asp-controller="CustomerProfile"
-               asp-action="Edit"
-               class="btn btn-primary flex-fill">
-                Edit Profile
-            </a>
+        <!-- Three Buttons -->
+        <div class="row g-2 mt-3">
 
-            <a asp-controller="CustomerProfile"
-               asp-action="Delete"
-               class="btn btn-danger flex-fill">
-                Delete Account
-            </a>
+            <div class="col-md-4">
+                <a asp-controller="CustomerProfile"
+                   asp-action="Edit"
+                   class="btn btn-primary w-100">
+                    Edit Profile
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a asp-controller="CustomerProfile"
+                   asp-action="Delete"
+                   class="btn btn-danger w-100"
+                   onclick="return confirm('Are you sure you want to delete your account?');">
+                    Delete Account
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a asp-controller="Account"
+                   asp-action="Logout"
+                   class="btn btn-secondary w-100">
+                    Logout
+                </a>
+
+            </div>
+
         </div>
 
     </div>
+
 </div>
