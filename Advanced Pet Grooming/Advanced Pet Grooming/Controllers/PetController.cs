@@ -253,23 +253,24 @@ namespace Advanced_Pet_Grooming.Controllers
             ModelState.Remove("PetPhotos");
             ModelState.Remove("size_category");
 
-            // Check vaccination information
             if (pet.is_vaccinated)
             {
-                if (string.IsNullOrWhiteSpace(pet.vaccine_name) ||
-                    pet.vaccination_date == null ||
-                    pet.vaccination_expiry_date == null)
+                if (string.IsNullOrWhiteSpace(pet.vaccine_name))
                 {
-                    ModelState.AddModelError(
-                        "vaccine_name",
-                        "Please provide complete vaccination information.");
+                    ModelState.AddModelError("vaccine_name",
+                        "Please enter vaccine name.");
                 }
-                else if (pet.vaccination_expiry_date <
-                         pet.vaccination_date)
+
+                if (pet.vaccination_date == null)
                 {
-                    ModelState.AddModelError(
-                        "vaccination_expiry_date",
-                        "Expiry date cannot be earlier than vaccination date.");
+                    ModelState.AddModelError("vaccination_date",
+                        "Please enter vaccination date.");
+                }
+
+                if (pet.vaccination_expiry_date == null)
+                {
+                    ModelState.AddModelError("vaccination_expiry_date",
+                        "Please enter expiry date.");
                 }
             }
             else
