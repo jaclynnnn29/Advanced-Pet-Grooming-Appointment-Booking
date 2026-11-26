@@ -210,46 +210,105 @@ namespace Advanced_Pet_Grooming.Migrations
                 {
                     b.Property<int>("pet_id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("PetID");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("pet_id"));
 
+                    b.Property<int>("age")
+                        .HasColumnType("int")
+                        .HasColumnName("Age");
+
                     b.Property<string>("breed")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Breed");
 
                     b.Property<int>("customer_id")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerID");
+
+                    b.Property<string>("gender")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("Gender");
+
+                    b.Property<bool>("is_vaccinated")
+                        .HasColumnType("bit")
+                        .HasColumnName("IsVaccinated");
 
                     b.Property<string>("medical_record")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("MedicalNotes");
 
                     b.Property<string>("pet_name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("PetName");
 
                     b.Property<string>("pet_remark")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PetRemark");
 
                     b.Property<string>("pet_type")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("PetType");
 
                     b.Property<string>("size_category")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("SizeCategory");
 
-                    b.Property<string>("vaccination_record")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("vaccination_date")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("VaccinationDate");
+
+                    b.Property<DateTime?>("vaccination_expiry_date")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("VaccinationExpiryDate");
+
+                    b.Property<string>("vaccine_name")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("VaccineName");
+
+                    b.Property<decimal>("weight")
+                        .HasColumnType("decimal(5,2)")
+                        .HasColumnName("Weight");
 
                     b.HasKey("pet_id");
 
                     b.HasIndex("customer_id");
 
                     b.ToTable("Pets");
+                });
+
+            modelBuilder.Entity("Advanced_Pet_Grooming.Models.PetPhoto", b =>
+                {
+                    b.Property<int>("PetPhotoID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PetPhotoID"));
+
+                    b.Property<int>("PetID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PhotoPath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("PetPhotoID");
+
+                    b.HasIndex("PetID");
+
+                    b.ToTable("PetPhotos");
                 });
 
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Staff", b =>
@@ -359,6 +418,17 @@ namespace Advanced_Pet_Grooming.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("Advanced_Pet_Grooming.Models.PetPhoto", b =>
+                {
+                    b.HasOne("Advanced_Pet_Grooming.Models.Pet", "Pet")
+                        .WithMany("PetPhotos")
+                        .HasForeignKey("PetID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Pet");
+                });
+
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Appointment", b =>
                 {
                     b.Navigation("Payments");
@@ -367,6 +437,8 @@ namespace Advanced_Pet_Grooming.Migrations
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Pet", b =>
                 {
                     b.Navigation("Appointments");
+
+                    b.Navigation("PetPhotos");
                 });
 
             modelBuilder.Entity("Advanced_Pet_Grooming.Models.Staff", b =>
