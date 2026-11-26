@@ -58,8 +58,6 @@
                             <option value="">-- Select Pet Type --</option>
                             <option value="Dog">Dog</option>
                             <option value="Cat">Cat</option>
-                            <option value="Rabbit">Rabbit</option>
-                            <option value="Other">Other</option>
                         </select>
 
                         <span asp-validation-for="pet_type"
@@ -267,15 +265,16 @@
             </div>
         </div>
 
-        <!-- Existing Pet Photos -->
+        <!-- Upload More Photos -->
         <div class="card shadow-sm mb-4">
 
             <div class="card-header bg-light">
-                <h5 class="mb-0">Existing Pet Photos</h5>
+                <h5 class="mb-0">Upload More Photos</h5>
             </div>
 
             <div class="card-body">
 
+                <!-- Display Existing Photos -->
                 @if (Model.PetPhotos != null && Model.PetPhotos.Any())
                 {
                     <div class="row">
@@ -284,10 +283,31 @@
                         {
                             <div class="col-md-4 col-sm-6 mb-3">
 
-                                <img src="@photo.PhotoPath"
-                                     alt="@Model.pet_name"
-                                     class="img-fluid rounded"
-                                     style="width:100%; height:180px; object-fit:cover;" />
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-body">
+
+                                        <img src="@photo.PhotoPath"
+                                             alt="@Model.pet_name"
+                                             class="img-fluid rounded"
+                                             style="width:100%; height:180px; object-fit:cover;" />
+
+                                        <form asp-action="DeletePhoto"
+                                              asp-controller="Pet"
+                                              asp-route-id="@Model.pet_id"
+                                              asp-route-photoId="@photo.PetPhotoID"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-danger btn-sm w-100 mt-2">
+                                                Delete Photo
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+                                </div>
 
                             </div>
                         }
@@ -301,29 +321,40 @@
                     </p>
                 }
 
-            </div>
-        </div>
+                <hr />
 
-        <!-- Upload New Photos -->
-        <div class="card shadow-sm mb-4">
+                <!-- Upload New Photos -->
+                <form asp-action="UploadPhoto"
+                      asp-controller="Pet"
+                      asp-route-id="@Model.pet_id"
+                      method="post"
+                      enctype="multipart/form-data">
 
-            <div class="card-header bg-light">
-                <h5 class="mb-0">Upload More Photos</h5>
-            </div>
+                    @Html.AntiForgeryToken()
 
-            <div class="card-body">
+                    <div class="mb-3">
 
-                <input type="file"
-                       name="photos"
-                       class="form-control"
-                       accept=".jpg,.jpeg,.png,.webp"
-                       multiple />
+                        <label class="form-label">Upload Pet Photo</label>
 
-                <small class="text-muted">
-                    You can select multiple new photos.
-                    Supported formats: JPG, JPEG, PNG and WEBP.
-                    Maximum 5MB per photo.
-                </small>
+                        <input type="file"
+                               name="photos"
+                               class="form-control"
+                               accept=".jpg,.jpeg,.png,.webp"
+                               multiple />
+
+                        <small class="text-muted">
+                            You can select multiple new photos.
+                            Supported formats: JPG, JPEG, PNG and WEBP.
+                            Maximum 5MB per photo.
+                        </small>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Upload Photo
+                    </button>
+
+                </form>
 
             </div>
         </div>
@@ -343,6 +374,7 @@
         </div>
 
     </form>
+
 </div>
 
 

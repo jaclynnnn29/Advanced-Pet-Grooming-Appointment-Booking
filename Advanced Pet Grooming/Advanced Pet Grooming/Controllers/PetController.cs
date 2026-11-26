@@ -547,5 +547,101 @@ namespace Advanced_Pet_Grooming.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+
+        // POST: Pet/UploadPhoto
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadPhoto(
+            int id,
+            List<IFormFile>? photos)
+        {
+            if (!IsCustomer())
+            {
+                return Forbid();
+            }
+
+            // Check whether this pet belongs to the logged-in Customer
+            var pet = await GetCustomerPet(id);
+
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            // Check whether photos were selected
+            if (photos == null || !photos.Any(p => p.Length > 0))
+            {
+                TempData["ErrorMessage"] = "Please select at least one photo.";
+                return RedirectToAction(nameof(Edit), new { id });
+            }
+
+            // Validate photos
+            if (!ValidatePhotos(photos))
+            {
+                TempData["ErrorMessage"] =
+                    "Only JPG, JPEG, PNG and WEBP images up to 5MB each are allowed.";
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            // Save new photos
+            var savedPhotos = await SavePhotos(id, photos);
+
+            if (savedPhotos.Count > 0)
+            {
+                _context.PetPhotos.AddRange(savedPhotos);
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "Pet photos uploaded successfully!";
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+
+        // POST: Pet/DeletePhoto
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePhoto(
+            int id,
+            int photoId)
+        {
+            if (!IsCustomer())
+            {
+                return Forbid();
+            }
+
+            // Check whether this pet belongs to the logged-in Customer
+            var pet = await GetCustomerPet(id);
+
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            // Find the selected photo
+            var photo = pet.PetPhotos?
+                .FirstOrDefault(p => p.PetPhotoID == photoId);
+
+            if (photo == null)
+            {
+                return NotFound();
+            }
+
+            // Remove photo from database
+            _context.PetPhotos.Remove(photo);
+            await _context.SaveChangesAsync();
+
+            // Delete photo from wwwroot/uploads/pets
+            DeletePhotoFile(photo.PhotoPath);
+
+            TempData["SuccessMessage"] = "Photo deleted successfully!";
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+
     }
+
 }
