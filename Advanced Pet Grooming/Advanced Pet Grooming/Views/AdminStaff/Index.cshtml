@@ -1,0 +1,94 @@
+﻿@model IEnumerable<Advanced_Pet_Grooming.Models.Staff>
+@{
+    ViewData["Title"] = "Staff & Groomer Management";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Staff & Groomer Management</h2>
+        <a asp-action="Create" class="btn btn-primary">+ Add New Staff / Groomer</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <!-- Search & Role Filter -->
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-5">
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name or email..." />
+        </div>
+        <div class="col-md-3">
+            <select name="roleFilter" class="form-select">
+                <option value="">All Roles</option>
+                <option value="Admin" selected="@(ViewBag.RoleFilter == "Admin")">Admin</option>
+                <option value="Groomer" selected="@(ViewBag.RoleFilter == "Groomer")">Groomer</option>
+                <option value="Staff" selected="@(ViewBag.RoleFilter == "Staff")">Staff</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            <a asp-action="Index" class="btn btn-link">Reset</a>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Staff Name</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Phone No</th>
+                <th>Status</th>
+                <th style="width: 200px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-3">No staff records found.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.staff_id</td>
+                        <td><strong>@item.staff_name</strong></td>
+                        <td><span class="badge bg-info text-dark">@item.role</span></td>
+                        <td>@item.email</td>
+                        <td>@item.phone_no</td>
+                        <td>
+                            @if (item.account_status == "Active")
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.staff_id" class="btn btn-sm btn-warning">Edit</a>
+                            @if (item.account_status == "Active")
+                            {
+                                <form asp-action="Deactivate" asp-route-id="@item.staff_id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Deactivate @item.staff_name?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

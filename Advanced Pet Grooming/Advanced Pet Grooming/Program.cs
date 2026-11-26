@@ -11,7 +11,9 @@ builder.Services.AddControllersWithViews();
 // 1. Register SQL Server DbContext
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
 // 2. Enable Session for Login & Role Management
 builder.Services.AddDistributedMemoryCache();

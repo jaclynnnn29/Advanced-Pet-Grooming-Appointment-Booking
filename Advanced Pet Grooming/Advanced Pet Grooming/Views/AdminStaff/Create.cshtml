@@ -1,0 +1,48 @@
+﻿@model Advanced_Pet_Grooming.Models.Staff
+@{
+    ViewData["Title"] = "Add New Staff / Groomer";
+}
+
+<div class="container mt-4" style="max-width: 650px;">
+    <h2>Add New Staff / Groomer</h2>
+    <hr />
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="staff_name" class="form-label fw-bold">Full Name</label>
+            <input asp-for="staff_name" class="form-control" placeholder="e.g., Sarah Tan" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="role" class="form-label fw-bold">Role</label>
+            <select asp-for="role" class="form-select" required>
+                <option value="Groomer">Groomer</option>
+                <option value="Staff">Staff</option>
+                <option value="Admin">Admin</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="email" class="form-label fw-bold">Email Address</label>
+            <input asp-for="email" type="email" class="form-control" placeholder="sarah@petgrooming.com" required />
+            <span asp-validation-for="email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="phone_no" class="form-label fw-bold">Phone Number</label>
+            <input asp-for="phone_no" class="form-control" placeholder="012-3456789" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="plainPassword" class="form-label fw-bold">Initial Password</label>
+            <input type="password" name="plainPassword" id="plainPassword" class="form-control" minlength="6" required />
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save Staff Profile</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
