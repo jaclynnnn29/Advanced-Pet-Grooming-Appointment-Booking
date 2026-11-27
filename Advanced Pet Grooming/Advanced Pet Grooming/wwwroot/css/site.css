@@ -52,7 +52,20 @@ body {
    HOME HERO WITH DogNPet_Home.png BACKGROUND
    ========================================= */
 
+.pickagroom-nav {
+    background-color: #ffffff; 
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+    .pickagroom-nav .navbar {
+        margin-bottom: 0 !important;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
 .home-hero-banner {
+    margin-top: 0 !important;
     width: 100vw;
     position: relative;
     left: 50%;
@@ -67,7 +80,6 @@ body {
     display: flex;
     align-items: center;
     padding: 60px 0;
-    border-bottom: 1px solid rgba(82, 50, 29, 0.08);
 }
 
 .home-hero-content {

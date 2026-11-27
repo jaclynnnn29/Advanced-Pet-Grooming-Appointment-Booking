@@ -1,0 +1,152 @@
+﻿@{
+    ViewData["Title"] = "Dev - All Accounts";
+    var customers = ViewBag.Customers as IEnumerable<object> ?? Enumerable.Empty<object>();
+    var staffs = ViewBag.Staffs as IEnumerable<object> ?? Enumerable.Empty<object>();
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge rounded-pill mb-2" style="background-color: #F4BE5E; color: #52321D;">
+                Temporary Dev Tool
+            </span>
+            <h2 class="mb-0" style="font-family: 'Fredoka', sans-serif; color: #52321D;">
+                Database Accounts &amp; Roles
+            </h2>
+        </div>
+        <a asp-controller="Account" asp-action="Login" class="btn-teal-pill">
+            Go to Login
+        </a>
+    </div>
+
+    <!-- 1. STAFF / ADMIN ACCOUNTS TABLE -->
+    <h4 class="mb-3" style="font-family: 'Fredoka', sans-serif; color: #1E8E93;">
+        Staff &amp; Admin Accounts (@staffs.Count())
+    </h4>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color: #1E8E93; color: #ffffff;">
+                    <tr>
+                        <th class="ps-4 py-3">Staff ID</th>
+                        <th class="py-3">Name / Username</th>
+                        <th class="py-3">Email</th>
+                        <th class="py-3">Role</th>
+                        <th class="pe-4 py-3">Password / Hash</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!staffs.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No staff accounts found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var s in staffs)
+                        {
+                            var id = GetProp(s, "staff_id", "StaffId", "Id");
+                            var name = GetProp(s, "name", "Name", "full_name", "FullName", "username", "Username");
+                            var email = GetProp(s, "email", "Email");
+                            var role = GetProp(s, "role", "Role", "position", "Position");
+                            var pass = GetProp(s, "password", "Password", "password_hash", "PasswordHash");
+
+                            string badgeColor = role?.ToString()?.Contains("Admin", StringComparison.OrdinalIgnoreCase) == true
+                            ? "#dc3545"
+                            : "#1E8E93";
+
+                            <tr>
+                                <td class="ps-4 fw-bold">@id</td>
+                                <td>@name</td>
+                                <td>@email</td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2" style="background-color: @badgeColor; color: #fff;">
+                                        @(role?.ToString() == "-" ? "Staff" : role)
+                                    </span>
+                                </td>
+                                <td class="pe-4 text-muted small">
+                                    <code>@(pass?.ToString()?.Length > 20 ? pass.ToString()!.Substring(0, 20) + "..." : pass)</code>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 2. CUSTOMER ACCOUNTS TABLE -->
+    <h4 class="mb-3" style="font-family: 'Fredoka', sans-serif; color: #52321D;">
+        Customer Accounts (@customers.Count())
+    </h4>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color: #52321D; color: #ffffff;">
+                    <tr>
+                        <th class="ps-4 py-3">Customer ID</th>
+                        <th class="py-3">Name / Username</th>
+                        <th class="py-3">Email</th>
+                        <th class="py-3">Phone</th>
+                        <th class="py-3">Role</th>
+                        <th class="pe-4 py-3">Password / Hash</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!customers.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No customer accounts found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var c in customers)
+                        {
+                            var id = GetProp(c, "customer_id", "CustomerId", "Id");
+                            var name = GetProp(c, "name", "Name", "full_name", "FullName", "username", "Username");
+                            var email = GetProp(c, "email", "Email");
+                            var phone = GetProp(c, "phone", "Phone", "phone_number", "PhoneNumber");
+                            var role = GetProp(c, "role", "Role");
+                            var pass = GetProp(c, "password", "Password", "password_hash", "PasswordHash");
+
+                            <tr>
+                                <td class="ps-4 fw-bold">@id</td>
+                                <td>@name</td>
+                                <td>@email</td>
+                                <td>@phone</td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2" style="background-color: #F4BE5E; color: #52321D;">
+                                        @(role?.ToString() == "-" ? "Customer" : role)
+                                    </span>
+                                </td>
+                                <td class="pe-4 text-muted small">
+                                    <code>@(pass?.ToString()?.Length > 20 ? pass.ToString()!.Substring(0, 20) + "..." : pass)</code>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    object GetProp(object obj, params string[] names)
+    {
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name);
+            if (prop != null)
+            {
+                var val = prop.GetValue(obj);
+                if (val != null && !string.IsNullOrWhiteSpace(val.ToString()))
+                    return val;
+            }
+        }
+        return "-";
+    }
+}
