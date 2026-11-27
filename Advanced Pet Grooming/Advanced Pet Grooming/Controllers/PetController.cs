@@ -543,18 +543,6 @@ namespace Advanced_Pet_Grooming.Controllers
                 return NotFound();
             }
 
-            // Check whether this pet has appointments
-            bool hasAppointments = await _context.Appointments
-                .AnyAsync(a => a.pet_id == id);
-
-            if (hasAppointments)
-            {
-                TempData["ErrorMessage"] =
-                    "This pet cannot be deleted because it has appointment records.";
-
-                return RedirectToAction(nameof(Index));
-            }
-
             // Delete pet photos
             if (pet.PetPhotos != null)
             {
