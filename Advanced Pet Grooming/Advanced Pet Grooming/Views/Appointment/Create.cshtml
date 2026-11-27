@@ -1,0 +1,146 @@
+﻿@model Advanced_Pet_Grooming.Models.Appointment
+@{
+    ViewData["Title"] = "Book Appointment";
+    var role = Context.Session.GetString("UserRole");
+    bool isCustomer = role == "Customer";
+    var pets = ViewBag.Pets as List<Advanced_Pet_Grooming.Models.Pet>;
+    var groomers = ViewBag.Groomers as List<Advanced_Pet_Grooming.Models.Staff>;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">@(isCustomer ? "Book Online Grooming Appointment" : "Create Walk-In Appointment")</h4>
+            <span class="badge bg-info text-dark">@(isCustomer ? "Online Booking" : "Walk-In Booking")</span>
+        </div>
+        <div class="card-body">
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                @if (!isCustomer)
+                {
+                    <!-- DFD 3.1: Staff searches Customer & Pet Availability -->
+                    <div class="mb-3 p-3 border rounded bg-light">
+                        <label class="form-label fw-bold">1. Search Customer (Name, Email, or Phone)</label>
+                        <div class="input-group mb-2">
+                            <input type="text" id="customerSearchInput" class="form-control" placeholder="Type customer name or phone..." />
+                            <button type="button" id="btnSearchCustomer" class="btn btn-outline-primary">Search</button>
+                        </div>
+                        <div id="customerSearchResults" class="list-group mb-2"></div>
+
+                        <input type="hidden" asp-for="customer_id" id="selectedCustomerId" />
+                        <div id="selectedCustomerBanner" class="text-success fw-semibold d-none"></div>
+
+                        <label class="form-label fw-bold mt-2">Select Customer's Pet</label>
+                        <select asp-for="pet_id" id="petSelect" class="form-select" required>
+                            <option value="" data-species="Dog" data-size="M">-- Search and select a customer first --</option>
+                        </select>
+                    </div>
+                }
+                else
+                {
+                    <!-- Customer selects from their own registered pets -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">1. Select Your Pet</label>
+                        <select asp-for="pet_id" id="petSelect" class="form-select" required>
+                            <option value="" data-species="Dog" data-size="M">-- Choose a Pet --</option>
+                            @if (pets != null)
+                            {
+                                foreach (var pet in pets)
+                                {
+                                    var petSpecies = string.IsNullOrWhiteSpace(pet.pet_type) ? "Dog" : pet.pet_type.Trim();
+                                    var petSize = string.IsNullOrWhiteSpace(pet.size_category) ? "M" : pet.size_category.Trim().ToUpper();
+                                    bool isCatPet = petSpecies.Equals("Cat", StringComparison.OrdinalIgnoreCase);
+
+                                    <option value="@pet.pet_id" data-species="@petSpecies" data-size="@petSize">
+                                        @(isCatPet ? $"{pet.pet_name} (Cat)" : $"{pet.pet_name} (Dog - Size {petSize})")
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+                }
+
+                <!-- Cat Coat Length Selector (Shown automatically only when a Cat is selected) -->
+                <div id="catCoatSelectorBox" class="mb-3 p-3 border rounded bg-light d-none">
+                    <label class="form-label fw-bold mb-2">Cat Coat Length</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="catCoatLength" id="coatShort" value="Short Coat" checked>
+                            <label class="form-check-label fw-semibold" for="coatShort">Short Coat</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="catCoatLength" id="coatLong" value="Long Coat">
+                            <label class="form-check-label fw-semibold" for="coatLong">Long Coat</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Filtered Dog (S/M/L) or Cat (Short/Long Coat) Grooming Packages -->
+                <div id="serviceSelectionSection" class="mb-3 d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold mb-0">2. Select Grooming Package</label>
+                        <span id="detectedTierBadge" class="badge rounded-pill admin-role-badge"></span>
+                    </div>
+                    <input type="hidden" asp-for="service_package" id="selectedServicePackageInput" required />
+                    <div id="packageCardContainer" class="row g-2"></div>
+
+                    <!-- Optional Species-Specific Extras -->
+                    <div class="mt-3 p-3 border rounded bg-light">
+                        <label class="form-label fw-bold mb-2">Optional Add-On Extras</label>
+                        <div id="extrasContainer" class="row g-2"></div>
+                    </div>
+
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <small id="menuFootnote" class="text-muted"></small>
+                        <span id="totalPriceDisplay" class="fw-bold text-teal">Total: RM 0</span>
+                    </div>
+                </div>
+
+                <!-- 3. Groomer & Date -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">3. Preferred Groomer / Staff</label>
+                        <select asp-for="staff_id" class="form-select">
+                            <option value="0">-- Auto-Assign Available Groomer --</option>
+                            @if (groomers != null)
+                            {
+                                foreach (var g in groomers)
+                                {
+                                    <option value="@g.staff_id">@g.staff_name (@g.role)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">4. Appointment Date</label>
+                        <input asp-for="appointment_date" type="date" id="appointmentDateInput"
+                               class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                </div>
+
+                <!-- 5. Dynamic Time Slot Picker (Max 5 per slot; greyed out if full) -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">5. Select Time Slot <small class="text-muted">(Max 5 bookings per slot)</small></label>
+                    <input type="hidden" asp-for="time_slot" id="selectedTimeSlotInput" required />
+                    <div id="timeSlotContainer" class="row g-2"></div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" id="btnSubmitBooking" class="btn btn-success" disabled>Confirm Appointment</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Back to Appointments</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/appointment-create.js"></script>
+}
