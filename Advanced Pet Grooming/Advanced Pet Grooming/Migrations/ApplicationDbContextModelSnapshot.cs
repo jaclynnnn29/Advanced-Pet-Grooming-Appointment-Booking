@@ -238,8 +238,8 @@ namespace Advanced_Pet_Grooming.Migrations
                         .HasColumnName("IsVaccinated");
 
                     b.Property<string>("medical_record")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
                         .HasColumnName("MedicalNotes");
 
                     b.Property<string>("pet_name")
@@ -249,7 +249,8 @@ namespace Advanced_Pet_Grooming.Migrations
                         .HasColumnName("PetName");
 
                     b.Property<string>("pet_remark")
-                        .HasColumnType("nvarchar(max)")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
                         .HasColumnName("PetRemark");
 
                     b.Property<string>("pet_type")
