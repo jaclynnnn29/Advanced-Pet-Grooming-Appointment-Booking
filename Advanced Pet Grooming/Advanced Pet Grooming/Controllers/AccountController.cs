@@ -1,5 +1,4 @@
-﻿
-using Advanced_Pet_Grooming.Data;
+﻿using Advanced_Pet_Grooming.Data;
 using Advanced_Pet_Grooming.Models;
 using Advanced_Pet_Grooming.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -410,10 +409,13 @@ namespace Advanced_Pet_Grooming.Controllers
                     HttpContext.Session.Clear();
 
                     HttpContext.Session.SetInt32("UserId", staff.staff_id);
-
                     HttpContext.Session.SetString("UserName", staff.staff_name);
-
                     HttpContext.Session.SetString("UserRole", staff.role);
+
+                    if (staff.role == "Admin")
+                    {
+                        return RedirectToAction("Index", "AdminStaff");
+                    }
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -452,7 +454,7 @@ namespace Advanced_Pet_Grooming.Controllers
             // Check whether account is locked
             if (customer.locked_until.HasValue && customer.locked_until.Value > DateTime.Now)
             {
-                ViewBag.Error ="Your account is temporarily locked. Please try again later.";
+                ViewBag.Error = "Your account is temporarily locked. Please try again later.";
 
                 SetCaptcha();
                 return View();
@@ -493,7 +495,7 @@ namespace Advanced_Pet_Grooming.Controllers
 
                 _context.SaveChanges();
 
-                ViewBag.Error ="Invalid email or password. Failed attempts: " + customer.failed_login_attempts + "/3";
+                ViewBag.Error = "Invalid email or password. Failed attempts: " + customer.failed_login_attempts + "/3";
 
                 SetCaptcha();
                 return View();
@@ -540,7 +542,5 @@ namespace Advanced_Pet_Grooming.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-
-
     }
 }
