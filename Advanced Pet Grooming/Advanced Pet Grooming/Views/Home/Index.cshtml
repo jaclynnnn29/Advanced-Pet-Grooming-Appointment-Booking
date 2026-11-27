@@ -3,23 +3,36 @@
 }
 
 <!-- Hero Section -->
-<div class="p-5 mb-4 bg-body-tertiary rounded-3 shadow-sm border text-center">
-    <div class="container-fluid py-4">
-        <h1 class="display-4 fw-bold text-primary">Welcome To PickAGroom! 🐾</h1>
-        <!-- Changed text-muted to text-body-secondary -->
-        <p class="col-md-8 fs-4 mx-auto text-body-secondary">
-            Professional grooming services tailored for Pets.<br />
-            Book your appointment right now.
-        </p>
-        <a asp-controller="Booking" asp-action="Create" class="btn btn-primary btn-lg px-4 me-md-2">Book an Appointment Now</a>
-        <a asp-controller="Booking" asp-action="Index" class="btn btn-outline-secondary btn-lg px-4">View All Services</a>
+<section class="home-hero-banner">
+    <div class="container">
+        <div class="home-hero-content">
+            <h1 class="home-hero-title">
+                <span class="text-gold">Welcome</span> To<br />
+                PickA<span class="text-gold">Groom!</span> 🐾
+            </h1>
+
+            <p class="home-hero-text">
+                Professional grooming services tailored for Pets.<br />
+                Book your appointment right now.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Booking" asp-action="Create" class="btn-teal-pill">
+                    Book an Appointment Now
+                </a>
+                <a asp-controller="Booking" asp-action="Index" class="btn-outline-brown-pill">
+                    View All Services
+                </a>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 <!-- Featured Services Section -->
 <div class="container my-5">
-    <h3 class="text-center mb-4">Our Popular Services</h3>
+    <h3 class="text-center mb-4 font-display" style="color: var(--teal-primary); font-size: 2.1rem;">
+        Our Popular Services
+    </h3>
     <div class="row">
-        
     </div>
 </div>
