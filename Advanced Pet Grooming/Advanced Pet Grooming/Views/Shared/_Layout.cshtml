@@ -1,7 +1,5 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-
-<!-- Just to make changes for commiting again-->
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,8 +12,8 @@
 </head>
 <body>
     <header class="pickagroom-nav">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow ">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow">
+            <div class="container-fluid px-4">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <img src="~/images/PickAGroom_Logo.png" alt="PickAGroom" height="60" class="d-inline-block align-text-top" />
                 </a>
@@ -23,41 +21,45 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav align-items-sm-center gap-2">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="btn-outline-brown-pill" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Announcements" asp-action="Index">Announcements</a>
+                            <a class="btn-outline-brown-pill" asp-area="" asp-controller="Announcements" asp-action="Index">Announcements</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="btn-outline-brown-pill" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-semibold" style="color: #1E8E93;" asp-controller="DevAccounts" asp-action="Index">
-                                [Dev: Accounts]
-                            </a>
-                        </li>
-                        @if (Context.Session.GetInt32("UserId") == null)
+
+                        @if (Context.Session.GetString("UserRole") == "Customer")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Account"
-                                   asp-action="Login">Login</a>
-                            </li>
-                        }
-                        else if (Context.Session.GetString("UserRole") == "Customer")
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="btn-outline-brown-pill"
                                    asp-controller="Pet"
                                    asp-action="Index">My Pets</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="btn-outline-brown-pill"
                                    asp-controller="CustomerProfile"
                                    asp-action="Index">My Profile</a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <a class="btn-outline-brown-pill"
+                               asp-controller="DevAccounts"
+                               asp-action="Index">[Dev: Accounts]</a>
+                        </li>
+
+                        @if (Context.Session.GetInt32("UserId") == null)
+                        {
+                            <li class="nav-item">
+                                <a class="btn-teal-pill"
+                                   asp-controller="Account"
+                                   asp-action="Login">Login</a>
                             </li>
                         }
                     </ul>
@@ -65,17 +67,17 @@
             </div>
         </nav>
     </header>
-    
+
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
-    
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - Advanced_Pet_Grooming - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - PickAGroom - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
