@@ -14,17 +14,16 @@ namespace Advanced_Pet_Grooming.Controllers
             _context = context;
         }
 
-        // Helper: Verify Admin session
+        // Helper: Verify Admin session (matches "UserRole" in _Layout.cshtml & AccountController)
         private bool IsAdmin()
         {
-            return HttpContext.Session.GetString("Role") == "Admin";
+            return HttpContext.Session.GetString("UserRole") == "Admin";
         }
 
         // 4.2 READ: View Staff & Groomer Profile Directory
         public async Task<IActionResult> Index(string? search, string? roleFilter)
         {
-            // Uncomment once Login session is active:
-            // if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
             var query = _context.Staffs.AsQueryable();
 
@@ -46,6 +45,7 @@ namespace Advanced_Pet_Grooming.Controllers
         // 4.1 CREATE: Add New Staff / Groomer (GET)
         public IActionResult Create()
         {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
             return View();
         }
 
@@ -54,6 +54,8 @@ namespace Advanced_Pet_Grooming.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Staff model, string plainPassword)
         {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
             // Remove password_hash from ModelState validation since we hash plainPassword manually
             ModelState.Remove("password_hash");
 
@@ -87,6 +89,8 @@ namespace Advanced_Pet_Grooming.Controllers
         // 4.3 UPDATE: Edit Staff / Groomer Profile (GET)
         public async Task<IActionResult> Edit(int id)
         {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
             var staff = await _context.Staffs.FindAsync(id);
             if (staff == null) return NotFound();
             return View(staff);
@@ -97,6 +101,8 @@ namespace Advanced_Pet_Grooming.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Staff updatedStaff, string? newPassword)
         {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
             if (id != updatedStaff.staff_id) return BadRequest();
 
             ModelState.Remove("password_hash");
@@ -139,6 +145,8 @@ namespace Advanced_Pet_Grooming.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)
         {
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
+
             var staff = await _context.Staffs.FindAsync(id);
             if (staff == null) return NotFound();
 
