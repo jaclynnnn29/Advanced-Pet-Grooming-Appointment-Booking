@@ -59,19 +59,6 @@
                                    asp-controller="CustomerProfile"
                                    asp-action="Index">My Profile</a>
                             </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account"
-                                      asp-action="Logout"
-                                      method="post">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <button type="submit"
-                                            class="nav-link text-dark border-0 bg-transparent">
-                                        Logout
-                                    </button>
-                                </form>
-                            </li>
                         }
                     </ul>
                 </div>
