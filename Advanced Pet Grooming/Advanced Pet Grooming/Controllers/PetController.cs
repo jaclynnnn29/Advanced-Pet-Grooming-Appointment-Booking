@@ -302,12 +302,12 @@ namespace Advanced_Pet_Grooming.Controllers
                     "Only JPG, JPEG, PNG and WEBP images up to 5MB each are allowed.");
             }
 
-            // Check weight
-            if (pet.weight <= 0)
+            // Check size category
+            if (pet.size_category == null)
             {
                 ModelState.AddModelError(
-                    "weight",
-                    "Weight must be greater than zero.");
+                    "size_category",
+                    "Please select a pet size.");
             }
 
             // Check age
@@ -326,8 +326,7 @@ namespace Advanced_Pet_Grooming.Controllers
             // Assign Customer ID automatically
             pet.customer_id = customerId.Value;
 
-            // Pet Size is no longer calculated
-            pet.size_category = "Not Specified";
+           
 
             pet.PetPhotos = new List<PetPhoto>();
 
@@ -394,7 +393,7 @@ namespace Advanced_Pet_Grooming.Controllers
 
             ModelState.Remove("Customer");
             ModelState.Remove("PetPhotos");
-            ModelState.Remove("size_category");
+            
 
             // Check vaccination information
             bool hasVaccineName =
@@ -443,11 +442,11 @@ namespace Advanced_Pet_Grooming.Controllers
                     "Only JPG, JPEG, PNG and WEBP images up to 5MB each are allowed.");
             }
 
-            if (pet.weight <= 0)
+            if (string.IsNullOrWhiteSpace(pet.size_category))
             {
                 ModelState.AddModelError(
-                    "weight",
-                    "Weight must be greater than zero.");
+                    "size_category",
+                    "Please select a pet size.");
             }
 
             if (pet.age < 0)
@@ -472,10 +471,8 @@ namespace Advanced_Pet_Grooming.Controllers
             existingPet.breed = pet.breed;
             existingPet.gender = pet.gender;
             existingPet.age = pet.age;
-            existingPet.weight = pet.weight;
+            existingPet.size_category = pet.size_category;
 
-            // Pet Size is no longer calculated
-            existingPet.size_category = "Not Specified";
 
             existingPet.is_vaccinated = pet.is_vaccinated;
             existingPet.vaccine_name = pet.vaccine_name;

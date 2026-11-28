@@ -33,10 +33,6 @@ namespace Advanced_Pet_Grooming.Models
         [Column("Age")]
         public int age { get; set; }
 
-        [Required]
-        [Column("Weight", TypeName = "decimal(5,2)")]
-        public decimal weight { get; set; }
-
         [Required, StringLength(30)]
         [Column("SizeCategory")]
         public string size_category { get; set; } = string.Empty;
