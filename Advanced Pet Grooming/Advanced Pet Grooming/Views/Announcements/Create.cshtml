@@ -30,17 +30,22 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Status" class="form-label"></label>
-                        <select asp-for="Status" class="form-select">
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="StartDate" class="form-label">Publish Start Date</label>
+                        <input asp-for="StartDate" type="date" value="@Model.StartDate.ToString("yyyy-MM-dd")" class="form-control" required />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Date" class="form-label"></label>
-                        <input asp-for="Date" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" />
-                        <span asp-validation-for="Date" class="text-danger"></span>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="EndDate" class="form-label">Publish End Date</label>
+                        <input asp-for="EndDate" type="date" value="@Model.EndDate.ToString("yyyy-MM-dd")" class="form-control" required />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Status" class="form-label">Status</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Active">Auto (Based on Dates)</option>
+                            <option value="Inactive">Inactive (Force Hide)</option>
+                        </select>
                     </div>
                 </div>
 

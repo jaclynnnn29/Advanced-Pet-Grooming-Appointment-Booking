@@ -71,14 +71,19 @@
                                 @announcement.Title
                                 @if (ViewBag.IsAdmin == true)
                                 {
-                                    <span class="badge @(announcement.Status == "Active" ? "bg-success" : "bg-secondary") ms-2 fs-6">
-                                        @announcement.Status
-                                    </span>
+                                    string badgeClass = announcement.Status switch
+                                    {
+                                        "Active" => "bg-success",
+                                        "Scheduled" => "bg-info text-dark",
+                                        "Expired" => "bg-danger",
+                                        _ => "bg-secondary"
+                                    };
+                                    <span class="badge @badgeClass ms-2 fs-6">@announcement.Status</span>
                                 }
                             </h2>
 
                             <p class="text-muted mb-2">
-                                Publish Date: @announcement.Date.ToString("yyyy-MM-dd")
+                                Publish Date: @announcement.Date.ToString("yyyy-MM-dd") to @announcement.EndDate.ToString("yyyy-MM-dd")
                             </p>
                         </div>
 

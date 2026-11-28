@@ -26,8 +26,15 @@ namespace Advanced_Pet_Grooming.Models
         [Required(ErrorMessage = "Status is required.")]
         public string Status { get; set; } = "Active"; // "Active" or "Inactive"
 
-        [Required(ErrorMessage = "Date is required.")]
+        [Required(ErrorMessage = "Publish Start Date is required.")]
         [DataType(DataType.Date)]
+        [Display(Name = "Publish Start Date")]
+        public DateTime StartDate { get; set; } = DateTime.Today;
+
+        [Required(ErrorMessage = "Publish End Date is required.")]
+        [DataType(DataType.Date)]
+        [Display(Name = "Publish End Date")]
+        public DateTime EndDate { get; set; } = DateTime.Today.AddDays(7);
         public DateTime Date { get; set; } = DateTime.Now;
     }
 }

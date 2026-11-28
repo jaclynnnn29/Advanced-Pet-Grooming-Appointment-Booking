@@ -16,21 +16,65 @@ namespace Advanced_Pet_Grooming.Controllers
             _env = env;
         }
 
-        // Helper: Matches "UserRole" set in AccountController
         private bool IsAdmin()
         {
             return HttpContext.Session.GetString("UserRole") == "Admin";
         }
 
-        // FR 5.2: View Announcements (Admin sees all; Public/Customer/Staff see Active only + Search)
+        // Automatically sync Scheduled / Active / Expired statuses based on today's date
+        private async Task SyncAnnouncementStatusesAsync()
+        {
+            var today = DateTime.Today;
+            var all = await _context.Announcements.ToListAsync();
+            bool hasChanges = false;
+
+            foreach (var item in all)
+            {
+                // Keep manual "Inactive" overrides untouched
+                if (item.Status == "Inactive") continue;
+
+                string expectedStatus;
+                if (item.EndDate.Date < today)
+                {
+                    expectedStatus = "Expired";
+                }
+                else if (item.StartDate.Date > today)
+                {
+                    expectedStatus = "Scheduled";
+                }
+                else
+                {
+                    expectedStatus = "Active";
+                }
+
+                if (item.Status != expectedStatus)
+                {
+                    item.Status = expectedStatus;
+                    hasChanges = true;
+                }
+            }
+
+            if (hasChanges)
+            {
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        // View Announcements (Admin sees all; Public/Customer/Staff see currently Active only)
         public async Task<IActionResult> Index(string? searchKeyword)
         {
+            await SyncAnnouncementStatusesAsync();
+
             bool isAdmin = IsAdmin();
+            var today = DateTime.Today;
             var query = _context.Announcements.AsQueryable();
 
             if (!isAdmin)
             {
-                query = query.Where(a => a.Status == "Active");
+                query = query.Where(a =>
+                    a.Status == "Active" &&
+                    a.StartDate.Date <= today &&
+                    a.EndDate.Date >= today);
             }
 
             if (!string.IsNullOrWhiteSpace(searchKeyword))
@@ -38,7 +82,7 @@ namespace Advanced_Pet_Grooming.Controllers
                 query = query.Where(a => a.Title.Contains(searchKeyword) || a.Description.Contains(searchKeyword));
             }
 
-            var list = await query.OrderByDescending(a => a.Date).ToListAsync();
+            var list = await query.OrderByDescending(a => a.StartDate).ToListAsync();
 
             if (!list.Any())
             {
@@ -50,23 +94,42 @@ namespace Advanced_Pet_Grooming.Controllers
             return View(list);
         }
 
-        // FR 5.1: Create Announcement (GET) - Admin Only
+        // Create Announcement (GET) - Admin Only
         public IActionResult Create()
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
-            return View(new Announcement());
+            return View(new Announcement
+            {
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddDays(7),
+                Status = "Active"
+            });
         }
 
-        // FR 5.1: Create Announcement (POST) - Admin Only
+        // Create Announcement (POST) - Admin Only
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Announcement model)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
+            if (model.EndDate.Date < model.StartDate.Date)
+            {
+                ModelState.AddModelError("EndDate", "Publish End Date cannot be earlier than Publish Start Date.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
+            }
+
+            // Set initial status automatically unless manually set to Inactive
+            if (model.Status != "Inactive")
+            {
+                var today = DateTime.Today;
+                if (model.EndDate.Date < today) model.Status = "Expired";
+                else if (model.StartDate.Date > today) model.Status = "Scheduled";
+                else model.Status = "Active";
             }
 
             if (model.ImageFile != null && model.ImageFile.Length > 0)
@@ -86,11 +149,11 @@ namespace Advanced_Pet_Grooming.Controllers
             _context.Announcements.Add(model);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Announcement published successfully!";
+            TempData["SuccessMessage"] = "Announcement saved successfully!";
             return RedirectToAction(nameof(Index));
         }
 
-        // FR 5.3: Update Announcement (GET) - Admin Only
+        // Update Announcement (GET) - Admin Only
         public async Task<IActionResult> Edit(int? id)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
@@ -102,13 +165,18 @@ namespace Advanced_Pet_Grooming.Controllers
             return View(announcement);
         }
 
-        // FR 5.3: Update Announcement (POST) - Admin Only
+        // Update Announcement (POST) - Admin Only
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Announcement model)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Account");
             if (id != model.AnnouncementId) return NotFound();
+
+            if (model.EndDate.Date < model.StartDate.Date)
+            {
+                ModelState.AddModelError("EndDate", "Publish End Date cannot be earlier than Publish Start Date.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -120,8 +188,20 @@ namespace Advanced_Pet_Grooming.Controllers
 
             existing.Title = model.Title;
             existing.Description = model.Description;
-            existing.Status = model.Status;
-            existing.Date = model.Date;
+            existing.StartDate = model.StartDate;
+            existing.EndDate = model.EndDate;
+
+            if (model.Status == "Inactive")
+            {
+                existing.Status = "Inactive";
+            }
+            else
+            {
+                var today = DateTime.Today;
+                if (model.EndDate.Date < today) existing.Status = "Expired";
+                else if (model.StartDate.Date > today) existing.Status = "Scheduled";
+                else existing.Status = "Active";
+            }
 
             if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
@@ -142,7 +222,7 @@ namespace Advanced_Pet_Grooming.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // FR 5.4: Delete Announcement (POST) - Admin Only
+        // Delete Announcement (POST) - Admin Only
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
