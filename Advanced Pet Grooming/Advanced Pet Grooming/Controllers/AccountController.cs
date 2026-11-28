@@ -3,6 +3,7 @@ using Advanced_Pet_Grooming.Models;
 using Advanced_Pet_Grooming.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace Advanced_Pet_Grooming.Controllers
 {
@@ -10,10 +11,27 @@ namespace Advanced_Pet_Grooming.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly EmailService _emailService;
+
         public AccountController(ApplicationDbContext context, EmailService emailService)
         {
             _context = context;
             _emailService = emailService;
+        }
+
+        // =========================
+        // DEV HELPER: STORE PLAIN-TEXT PASSWORD IN SESSION
+        // =========================
+
+        private void SaveDevPassword(string email, string plainPassword)
+        {
+            var json = HttpContext.Session.GetString("DevPlainPasswords");
+            var map = string.IsNullOrEmpty(json)
+                ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                : JsonSerializer.Deserialize<Dictionary<string, string>>(json)
+                  ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            map[email] = plainPassword;
+            HttpContext.Session.SetString("DevPlainPasswords", JsonSerializer.Serialize(map));
         }
 
         // =========================
@@ -52,10 +70,9 @@ namespace Advanced_Pet_Grooming.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(Customer model, string password)
+        public async Task<IActionResult> Register(Customer model, string password, IFormFile? profilePhoto)
         {
             // Check required fields
             if (string.IsNullOrWhiteSpace(model.name) ||
@@ -104,6 +121,34 @@ namespace Advanced_Pet_Grooming.Controllers
                 return View(model);
             }
 
+            // Handle optional profile picture upload (default to /images/default-avatar.png)
+            string photoPath = "/images/default-avatar.png";
+
+            if (profilePhoto != null && profilePhoto.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+                var ext = Path.GetExtension(profilePhoto.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(ext))
+                {
+                    ViewBag.Error = "Invalid image format. Please upload a JPG, PNG, WEBP, or GIF file.";
+                    return View(model);
+                }
+
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}{ext}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await profilePhoto.CopyToAsync(stream);
+                }
+
+                photoPath = $"/uploads/profiles/{uniqueFileName}";
+            }
+
             // Find existing Customer using the same email
             var existingCustomer = _context.Customers
                 .FirstOrDefault(c =>
@@ -129,6 +174,7 @@ namespace Advanced_Pet_Grooming.Controllers
                 existingCustomer.name = model.name.Trim();
                 existingCustomer.email = email;
                 existingCustomer.phone_no = phone;
+                existingCustomer.profile_photo = photoPath;
 
                 // Update password
                 existingCustomer.password_hash =
@@ -146,6 +192,7 @@ namespace Advanced_Pet_Grooming.Controllers
                 existingCustomer.reset_token_expiry = null;
 
                 _context.SaveChanges();
+                SaveDevPassword(email, password);
 
                 TempData["Success"] = "Your previous account has been successfully restored! Please log in.";
 
@@ -158,6 +205,7 @@ namespace Advanced_Pet_Grooming.Controllers
             customer.name = model.name.Trim();
             customer.email = email;
             customer.phone_no = phone;
+            customer.profile_photo = photoPath;
 
             customer.password_hash = BCrypt.Net.BCrypt.HashPassword(password);
 
@@ -168,12 +216,12 @@ namespace Advanced_Pet_Grooming.Controllers
 
             _context.Customers.Add(customer);
             _context.SaveChanges();
+            SaveDevPassword(email, password);
 
             TempData["Success"] = "Registration successful! Please log in.";
 
             return RedirectToAction("Login");
         }
-
 
         // =========================
         // LOGIN PAGE
@@ -244,6 +292,7 @@ namespace Advanced_Pet_Grooming.Controllers
                 ViewBag.Error = "Unable to generate reset link.";
                 return View();
             }
+
             string emailBody = $@"
                 <h2>Pet Grooming Appointment System</h2>
                 <p>You requested to reset your password.</p>
@@ -338,6 +387,7 @@ namespace Advanced_Pet_Grooming.Controllers
             customer.reset_token_expiry = null;
 
             _context.SaveChanges();
+            SaveDevPassword(customer.email, newPassword);
 
             TempData["Success"] = "Password reset successful! Please log in.";
 
@@ -411,6 +461,7 @@ namespace Advanced_Pet_Grooming.Controllers
                     HttpContext.Session.SetInt32("UserId", staff.staff_id);
                     HttpContext.Session.SetString("UserName", staff.staff_name);
                     HttpContext.Session.SetString("UserRole", staff.role);
+                    SaveDevPassword(email, password);
 
                     if (staff.role == "Admin")
                     {
@@ -513,10 +564,9 @@ namespace Advanced_Pet_Grooming.Controllers
             HttpContext.Session.Clear();
 
             HttpContext.Session.SetInt32("UserId", customer.customer_id);
-
             HttpContext.Session.SetString("UserName", customer.name);
-
             HttpContext.Session.SetString("UserRole", "Customer");
+            SaveDevPassword(email, password);
 
             return RedirectToAction("Index", "Home");
         }

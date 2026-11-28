@@ -46,8 +46,8 @@ namespace Advanced_Pet_Grooming.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int?>("staff_id")
                         .HasColumnType("int");
@@ -151,6 +151,10 @@ namespace Advanced_Pet_Grooming.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("profile_photo")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("reset_token")
                         .HasMaxLength(255)
@@ -277,10 +281,6 @@ namespace Advanced_Pet_Grooming.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("VaccineName");
-
-                    b.Property<decimal>("weight")
-                        .HasColumnType("decimal(5,2)")
-                        .HasColumnName("Weight");
 
                     b.HasKey("pet_id");
 

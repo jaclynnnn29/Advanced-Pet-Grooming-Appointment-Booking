@@ -11,6 +11,12 @@
         <h2 class="text-center mb-4">My Profile</h2>
 
         <!-- Customer Information -->
+        <div class="text-center mb-4">
+            <img src="@(string.IsNullOrEmpty(Model.profile_photo) ? Url.Content("~/images/default-avatar.png") : Model.profile_photo)"
+                 alt="Profile Picture"
+                 style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; border: 3px solid #1E8E93;" />
+        </div>
+
         <div class="mb-3">
             <label class="form-label fw-bold">Full Name</label>
             <input type="text"

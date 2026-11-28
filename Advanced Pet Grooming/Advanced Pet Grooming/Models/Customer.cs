@@ -18,6 +18,10 @@ namespace Advanced_Pet_Grooming.Models
         [Required, StringLength(20)]
         public string phone_no { get; set; } = string.Empty;
 
+        //Profile Pic
+        [StringLength(255)]
+        public string? profile_photo { get; set; }
+
         [Required, StringLength(255)]
         public string password_hash { get; set; } = string.Empty;
 

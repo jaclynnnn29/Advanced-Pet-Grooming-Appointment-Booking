@@ -13,7 +13,31 @@
                 <div class="alert alert-danger">@ViewBag.Error</div>
             }
 
-            <form asp-action="Register" method="post">
+            <form asp-action="Register" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="profile_photo" />
+
+                <!-- Profile Picture Upload with Persistent Preview -->
+                <div class="text-center mb-3">
+                    <label for="profilePhotoInput" style="cursor: pointer;" title="Click to upload profile picture">
+                        <img id="avatarPreview"
+                             src="@(string.IsNullOrEmpty(Model?.profile_photo) ? Url.Content("~/images/default-avatar.png") : Model.profile_photo)"
+                             alt="Profile Preview"
+                             style="width: 96px; height: 96px; object-fit: cover; border-radius: 50%; border: 3px solid #1E8E93;" />
+                        <div class="small text-muted mt-1">
+                            @(string.IsNullOrEmpty(Model?.profile_photo) || Model.profile_photo == "/images/default-avatar.png"
+                                ? "Profile Picture (Optional)"
+                                : "Selected Picture Saved (Click to change)")
+                        </div>
+                    </label>
+                    <input type="file"
+                           id="profilePhotoInput"
+                           name="profilePhoto"
+                           accept="image/*"
+                           class="form-control form-control-sm mt-2"
+                           onchange="previewAvatar(this)" />
+                </div>
+
                 <div class="mb-3">
                     <label class="form-label">Full Name</label>
                     <input asp-for="name" class="form-control" required />
@@ -26,6 +50,7 @@
                     <label class="form-label">Phone Number</label>
                     <input type="tel"
                            name="phone_no"
+                           value="@Model?.phone_no"
                            class="form-control"
                            placeholder="Enter phone number"
                            minlength="10"
@@ -46,3 +71,17 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}
