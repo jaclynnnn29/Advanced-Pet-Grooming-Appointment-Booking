@@ -1,0 +1,43 @@
+﻿@model Advanced_Pet_Grooming.Models.Staff
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm p-4">
+            <h3 class="mb-3 text-center">My Profile</h3>
+
+            <div class="text-center mb-4">
+                <img src="~/images/default-avatar.png"
+                     alt="Profile Picture"
+                     style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; border: 3px solid #1E8E93;" />
+                <div class="mt-2">
+                    <span class="badge bg-info text-dark">@Model.role</span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Full Name</label>
+                <input class="form-control" value="@Model.staff_name" readonly />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Email Address</label>
+                <input class="form-control" value="@Model.email" readonly />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">Phone Number</label>
+                <input class="form-control" value="@Model.phone_no" readonly />
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <form asp-controller="Account" asp-action="Logout" method="post" class="w-100">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-secondary w-100">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

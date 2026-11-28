@@ -1,11 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Advanced_Pet_Grooming.Data;
+﻿using Advanced_Pet_Grooming.Data;
 using Advanced_Pet_Grooming.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,13 +16,19 @@ namespace Advanced_Pet_Grooming.Controllers
             _env = env;
         }
 
-        // FR 5.2: View Announcements (Admin sees all; Customer/Staff see Active only + Search)
+        // Helper: Matches "UserRole" set in AccountController
+        private bool IsAdmin()
+        {
+            return HttpContext.Session.GetString("UserRole") == "Admin";
+        }
+
+        // FR 5.2: View Announcements (Admin sees all; Public/Customer/Staff see Active only + Search)
         public async Task<IActionResult> Index(string? searchKeyword)
         {
-            var role = HttpContext.Session.GetString("Role"); // Adjust to match your session/auth key
+            bool isAdmin = IsAdmin();
             var query = _context.Announcements.AsQueryable();
 
-            if (role != "Admin")
+            if (!isAdmin)
             {
                 query = query.Where(a => a.Status == "Active");
             }
@@ -46,27 +46,27 @@ namespace Advanced_Pet_Grooming.Controllers
             }
 
             ViewBag.SearchKeyword = searchKeyword;
-            ViewBag.IsAdmin = (role == "Admin");
+            ViewBag.IsAdmin = isAdmin;
             return View(list);
         }
 
-        // FR 5.1: Create Announcement (GET)
+        // FR 5.1: Create Announcement (GET) - Admin Only
         public IActionResult Create()
         {
-            if (HttpContext.Session.GetString("Role") != "Admin") return Unauthorized();
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
             return View(new Announcement());
         }
 
-        // FR 5.1: Create Announcement (POST)
+        // FR 5.1: Create Announcement (POST) - Admin Only
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Announcement model)
         {
-            if (HttpContext.Session.GetString("Role") != "Admin") return Unauthorized();
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
-                return View(model); // Returns validation error notice per FR 5.1
+                return View(model);
             }
 
             if (model.ImageFile != null && model.ImageFile.Length > 0)
@@ -90,10 +90,10 @@ namespace Advanced_Pet_Grooming.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // FR 5.3: Update Announcement (GET)
+        // FR 5.3: Update Announcement (GET) - Admin Only
         public async Task<IActionResult> Edit(int? id)
         {
-            if (HttpContext.Session.GetString("Role") != "Admin") return Unauthorized();
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
             if (id == null) return NotFound();
 
             var announcement = await _context.Announcements.FindAsync(id);
@@ -102,17 +102,17 @@ namespace Advanced_Pet_Grooming.Controllers
             return View(announcement);
         }
 
-        // FR 5.3: Update Announcement (POST)
+        // FR 5.3: Update Announcement (POST) - Admin Only
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Announcement model)
         {
-            if (HttpContext.Session.GetString("Role") != "Admin") return Unauthorized();
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
             if (id != model.AnnouncementId) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                return View(model); // Returns validation error message per FR 5.3
+                return View(model);
             }
 
             var existing = await _context.Announcements.FindAsync(id);
@@ -142,12 +142,12 @@ namespace Advanced_Pet_Grooming.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // FR 5.4: Delete Announcement (POST)
+        // FR 5.4: Delete Announcement (POST) - Admin Only
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            if (HttpContext.Session.GetString("Role") != "Admin") return Unauthorized();
+            if (!IsAdmin()) return RedirectToAction("Login", "Account");
 
             var announcement = await _context.Announcements.FindAsync(id);
             if (announcement == null)

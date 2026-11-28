@@ -3,66 +3,125 @@
     ViewData["Title"] = "Announcements";
 }
 
-<h1>Announcements</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 style="color: #52321D; font-weight: 700;">Announcements</h1>
 
-@if (ViewBag.Notice != null)
-{
-    <div class="alert alert-info">
-        @ViewBag.Notice
+        @if (ViewBag.IsAdmin == true)
+        {
+            <a asp-controller="Announcements"
+               asp-action="Create"
+               class="btn-teal-pill">
+                + Post New Announcement
+            </a>
+        }
     </div>
-}
 
-<form asp-controller="Announcements"
-      asp-action="Index"
-      method="get"
-      class="mb-3">
-    <div class="input-group">
-        <input name="searchKeyword"
-               value="@ViewBag.SearchKeyword"
-               class="form-control"
-               placeholder="Search announcements" />
-
-        <button type="submit" class="btn btn-primary">
-            Search
-        </button>
-    </div>
-</form>
-
-@if (Model.Any())
-{
-    foreach (var announcement in Model)
+    @if (TempData["SuccessMessage"] != null)
     {
-        <div class="card mb-3">
-            <div class="card-body">
-                <h2>@announcement.Title</h2>
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
 
-                <p class="text-muted">
-                    @announcement.Date.ToString("yyyy-MM-dd")
-                </p>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
 
-                <p>@announcement.Description</p>
-
-                @if (!string.IsNullOrEmpty(announcement.ImagePath))
-                {
-                    <img src="@announcement.ImagePath"
-                         alt="@announcement.Title"
-                         class="img-fluid" />
-                }
-
-                @if (ViewBag.IsAdmin == true)
-                {
-                    <a asp-controller="Announcements"
-                       asp-action="Edit"
-                       asp-route-id="@announcement.AnnouncementId"
-                       class="btn btn-secondary">
-                        Edit
-                    </a>
-                }
-            </div>
+    @if (ViewBag.Notice != null)
+    {
+        <div class="alert alert-info">
+            @ViewBag.Notice
         </div>
     }
-}
-else if (ViewBag.Notice == null)
-{
-    <p>No announcements found.</p>
-}
+
+    <form asp-controller="Announcements"
+          asp-action="Index"
+          method="get"
+          class="mb-4">
+        <div class="input-group">
+            <input name="searchKeyword"
+                   value="@ViewBag.SearchKeyword"
+                   class="form-control"
+                   placeholder="Search announcements" />
+
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+
+            @if (!string.IsNullOrEmpty(ViewBag.SearchKeyword))
+            {
+                <a asp-controller="Announcements"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Reset
+                </a>
+            }
+        </div>
+    </form>
+
+    @if (Model.Any())
+    {
+        foreach (var announcement in Model)
+        {
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h2 class="h4 mb-1" style="color: #52321D;">
+                                @announcement.Title
+                                @if (ViewBag.IsAdmin == true)
+                                {
+                                    <span class="badge @(announcement.Status == "Active" ? "bg-success" : "bg-secondary") ms-2 fs-6">
+                                        @announcement.Status
+                                    </span>
+                                }
+                            </h2>
+
+                            <p class="text-muted mb-2">
+                                Publish Date: @announcement.Date.ToString("yyyy-MM-dd")
+                            </p>
+                        </div>
+
+                        @if (ViewBag.IsAdmin == true)
+                        {
+                            <div class="d-flex gap-2">
+                                <a asp-controller="Announcements"
+                                   asp-action="Edit"
+                                   asp-route-id="@announcement.AnnouncementId"
+                                   class="btn btn-sm btn-warning">
+                                    Edit
+                                </a>
+
+                                <form asp-controller="Announcements"
+                                      asp-action="Delete"
+                                      asp-route-id="@announcement.AnnouncementId"
+                                      method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Delete this announcement?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+
+                    <p style="white-space: pre-line;">@announcement.Description</p>
+
+                    @if (!string.IsNullOrEmpty(announcement.ImagePath))
+                    {
+                        <img src="@announcement.ImagePath"
+                             alt="@announcement.Title"
+                             class="img-fluid rounded mt-2"
+                             style="max-height: 360px; object-fit: cover;" />
+                    }
+                </div>
+            </div>
+        }
+    }
+    else if (ViewBag.Notice == null)
+    {
+        <p>No announcements found.</p>
+    }
+</div>

@@ -74,6 +74,40 @@ namespace Advanced_Pet_Grooming.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(Customer model, string password, IFormFile? profilePhoto)
         {
+            // Preserve previously uploaded photo if user already picked one before a validation error
+            string photoPath = !string.IsNullOrEmpty(model.profile_photo)
+                ? model.profile_photo
+                : "/images/default-avatar.png";
+
+            // If user selected a new file right now, save it immediately so it survives validation reloads
+            if (profilePhoto != null && profilePhoto.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+                var ext = Path.GetExtension(profilePhoto.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(ext))
+                {
+                    ViewBag.Error = "Invalid image format. Please upload a JPG, PNG, WEBP, or GIF file.";
+                    model.profile_photo = photoPath;
+                    return View(model);
+                }
+
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}{ext}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await profilePhoto.CopyToAsync(stream);
+                }
+
+                photoPath = $"/uploads/profiles/{uniqueFileName}";
+            }
+
+            model.profile_photo = photoPath;
+
             // Check required fields
             if (string.IsNullOrWhiteSpace(model.name) ||
                 string.IsNullOrWhiteSpace(model.email) ||
@@ -119,34 +153,6 @@ namespace Advanced_Pet_Grooming.Controllers
             {
                 ViewBag.Error = "Email is already registered.";
                 return View(model);
-            }
-
-            // Handle optional profile picture upload (default to /images/default-avatar.png)
-            string photoPath = "/images/default-avatar.png";
-
-            if (profilePhoto != null && profilePhoto.Length > 0)
-            {
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
-                var ext = Path.GetExtension(profilePhoto.FileName).ToLowerInvariant();
-
-                if (!allowedExtensions.Contains(ext))
-                {
-                    ViewBag.Error = "Invalid image format. Please upload a JPG, PNG, WEBP, or GIF file.";
-                    return View(model);
-                }
-
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
-                Directory.CreateDirectory(uploadsFolder);
-
-                var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await profilePhoto.CopyToAsync(stream);
-                }
-
-                photoPath = $"/uploads/profiles/{uniqueFileName}";
             }
 
             // Find existing Customer using the same email
@@ -569,6 +575,36 @@ namespace Advanced_Pet_Grooming.Controllers
             SaveDevPassword(email, password);
 
             return RedirectToAction("Index", "Home");
+        }
+
+        // =========================
+        // STAFF / ADMIN PROFILE
+        // =========================
+
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            string? role = HttpContext.Session.GetString("UserRole");
+
+            if (userId == null || string.IsNullOrEmpty(role))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Customers already have CustomerProfileController
+            if (role == "Customer")
+            {
+                return RedirectToAction("Index", "CustomerProfile");
+            }
+
+            var staff = _context.Staffs.FirstOrDefault(s => s.staff_id == userId.Value);
+            if (staff == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            return View(staff);
         }
 
         // =========================

@@ -1,0 +1,68 @@
+﻿@model Advanced_Pet_Grooming.Models.Announcement
+@{
+    ViewData["Title"] = "Edit Announcement";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 p-4">
+            <h2 class="mb-3" style="color: #52321D; font-weight: 700;">Edit Announcement</h2>
+
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="AnnouncementId" />
+                <input type="hidden" asp-for="ImagePath" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4" required></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.ImagePath))
+                {
+                    <div class="mb-3">
+                        <label class="form-label d-block">Current Image</label>
+                        <img src="@Model.ImagePath"
+                             alt="@Model.Title"
+                             class="img-fluid rounded border"
+                             style="max-height: 220px; object-fit: cover;" />
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="ImageFile" class="form-label">Change Announcement Image (Optional)</label>
+                    <input asp-for="ImageFile" type="file" accept="image/*" class="form-control" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Status" class="form-label"></label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Date" class="form-label"></label>
+                        <input asp-for="Date" type="date" value="@Model.Date.ToString("yyyy-MM-dd")" class="form-control" />
+                        <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn-teal-pill">Save Changes</button>
+                    <a asp-action="Index" class="btn-outline-brown-pill">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
